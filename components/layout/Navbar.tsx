@@ -1,0 +1,216 @@
+'use client'
+import { useState } from 'react'
+import Link from 'next/link'
+import { BHAVANS } from '@/lib/bhavans-data'
+
+const NAV_LINKS = [
+  { label: 'MAP', href: '/#campus-map' },
+  { label: 'BHAVANS', href: '/#our-bhavans' },
+  { label: 'EVENTS', href: '/#whats-happening' },
+  { label: 'ABOUT US', href: '/about-us' },
+]
+
+export default function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileBhavansOpen, setMobileBhavansOpen] = useState(false)
+
+  return (
+    <header className="w-full bg-brand sticky top-0 z-50 shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 sm:h-[4.5rem]">
+        <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-brand-light ring-2 ring-text-on-brand/20 flex-shrink-0">
+            <span className="text-text-on-brand text-xs font-bold leading-none text-center" style={{ fontFamily: 'var(--font-sans)' }}>IITR</span>
+          </div>
+        </Link>
+      
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2">
+          <h1
+            className="text-text-on-brand text-2xl sm:text-3xl md:text-4xl tracking-widest whitespace-nowrap"
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            BHAVANS OF IITR
+          </h1>
+        </Link>
+
+        <div className="flex items-center gap-2">
+          <a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-10 h-10 rounded-lg flex items-center justify-center text-text-on-brand/80 hover:text-text-on-brand hover:bg-brand-light transition-colors duration-150"
+            aria-label="Instagram"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+            </svg>
+          </a>
+
+          <button
+            className="sm:hidden w-10 h-10 rounded-lg flex items-center justify-center text-text-on-brand hover:bg-brand-light ml-1"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            <div className="flex flex-col gap-1.5">
+              <span className={`block w-5 h-0.5 bg-text-on-brand transition-transform duration-200 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}/>
+              <span className={`block w-5 h-0.5 bg-text-on-brand transition-opacity duration-200 ${menuOpen ? 'opacity-0' : ''}`}/>
+              <span className={`block w-5 h-0.5 bg-text-on-brand transition-transform duration-200 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}/>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <nav className="hidden sm:block border-t border-text-on-brand/10 bg-brand relative">
+        <div className="max-w-7xl mx-auto">
+          <ul className="flex">
+            {NAV_LINKS.map(link => (
+              <li key={link.label} className="flex-1 relative group">
+                <Link
+                  href={link.href}
+                  className="block text-center py-3.5 text-text-on-brand/75 text-xs font-bold tracking-[0.15em] hover:text-text-on-brand hover:bg-brand-light transition-colors duration-150 uppercase"
+                  style={{ fontFamily: 'var(--font-sans)' }}
+                >
+                  {link.label}
+                </Link>
+
+                {link.label === 'BHAVANS' && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block w-[760px] bg-surface-raised border border-border text-text shadow-lg rounded-2xl p-6 z-50 mt-0.5 transition-all duration-200">
+                    <div className="grid grid-cols-4 gap-5">
+                      {/* Column 1: Boys (A-M) */}
+                      <div>
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted mb-2 px-2 border-l-2 border-brand/40">Boys (A-M)</p>
+                        <ul className="flex flex-col gap-0.5 text-left">
+                          {BHAVANS.filter(b => b.category === 'boys' && b.slug < 'radhakrishnan').map(b => (
+                            <li key={b.slug}>
+                              <Link href={`/bhavans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
+                                {b.name.replace(' Bhawan', '')}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      {/* Column 2: Boys (R-Z) */}
+                      <div>
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted mb-2 px-2 border-l-2 border-brand/40">Boys (R-Z)</p>
+                        <ul className="flex flex-col gap-0.5 text-left">
+                          {BHAVANS.filter(b => b.category === 'boys' && b.slug >= 'radhakrishnan').map(b => (
+                            <li key={b.slug}>
+                              <Link href={`/bhavans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
+                                {b.name.replace(' Bhawan', '')}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      {/* Column 3: Girls */}
+                      <div>
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted mb-2 px-2 border-l-2 border-accent/40">Girls</p>
+                        <ul className="flex flex-col gap-0.5 text-left">
+                          {BHAVANS.filter(b => b.category === 'girls').map(b => (
+                            <li key={b.slug}>
+                              <Link href={`/bhavans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
+                                {b.name.replace(' Bhawan', '')}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      {/* Column 4: Married & Co-ed */}
+                      <div>
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted mb-2 px-2 border-l-2 border-brand-muted/40">Co-ed & Married</p>
+                        <ul className="flex flex-col gap-0.5 text-left">
+                          {BHAVANS.filter(b => ['married', 'coed'].includes(b.category)).map(b => (
+                            <li key={b.slug}>
+                              <Link href={`/bhavans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
+                                {b.name.replace(' Bhawan', '').replace(' Hostel', '').replace(' House', '')}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </nav>
+
+      {menuOpen && (
+        <nav className="sm:hidden border-t border-text-on-brand/10 bg-brand">
+          <ul>
+            {NAV_LINKS.map(link => {
+              if (link.label === 'BHAVANS') {
+                return (
+                  <li key={link.label} className="border-b border-text-on-brand/10">
+                    <button
+                      onClick={() => setMobileBhavansOpen(!mobileBhavansOpen)}
+                      className="w-full flex items-center justify-between px-6 py-4 text-text-on-brand/80 text-xs font-bold tracking-[0.15em] hover:bg-brand-light hover:text-text-on-brand transition-colors text-left cursor-pointer"
+                      style={{ fontFamily: 'var(--font-sans)' }}
+                    >
+                      <span>BHAVANS</span>
+                      <span className="text-[10px] opacity-65">{mobileBhavansOpen ? '▲' : '▼'}</span>
+                    </button>
+                    {mobileBhavansOpen && (
+                      <div className="bg-brand-light px-6 py-4 flex flex-col gap-4 text-left border-t border-text-on-brand/10">
+                        {/* Boys Category */}
+                        <div>
+                          <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-on-brand/40 mb-2 border-l border-text-on-brand/20 pl-2">Boys Hostels</p>
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                            {BHAVANS.filter(b => b.category === 'boys').map(b => (
+                              <Link key={b.slug} href={`/bhavans/${b.slug}`} onClick={() => { setMenuOpen(false); setMobileBhavansOpen(false); }} className="text-xs text-text-on-brand/70 hover:text-text-on-brand py-1 block">
+                                {b.name.replace(' Bhawan', '')}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Girls Category */}
+                        <div>
+                          <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-on-brand/40 mb-2 border-l border-text-on-brand/20 pl-2">Girls Hostels</p>
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                            {BHAVANS.filter(b => b.category === 'girls').map(b => (
+                              <Link key={b.slug} href={`/bhavans/${b.slug}`} onClick={() => { setMenuOpen(false); setMobileBhavansOpen(false); }} className="text-xs text-text-on-brand/70 hover:text-text-on-brand py-1 block">
+                                {b.name.replace(' Bhawan', '')}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Married & Co-ed Category */}
+                        <div>
+                          <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-on-brand/40 mb-2 border-l border-text-on-brand/20 pl-2">Co-ed & Married</p>
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                            {BHAVANS.filter(b => ['married', 'coed'].includes(b.category)).map(b => (
+                              <Link key={b.slug} href={`/bhavans/${b.slug}`} onClick={() => { setMenuOpen(false); setMobileBhavansOpen(false); }} className="text-xs text-text-on-brand/70 hover:text-text-on-brand py-1 block">
+                                {b.name.replace(' Bhawan', '').replace(' Hostel', '').replace(' House', '')}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                )
+              }
+
+              return (
+                <li key={link.label} className="border-b border-text-on-brand/10">
+                  <Link
+                    href={link.href}
+                    className="block px-6 py-4 text-text-on-brand/80 text-xs font-bold tracking-[0.15em] hover:bg-brand-light hover:text-text-on-brand transition-colors uppercase"
+                    style={{ fontFamily: 'var(--font-sans)' }}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
+      )}
+    </header>
+  )
+}
+

@@ -1,0 +1,113 @@
+# ==============================================================================
+# IIT ROORKEE BHAVANS PORTAL - BULLETPROOF .GITIGNORE
+# ==============================================================================
+
+# ─── DEPENDENCIES & PACKAGE MANAGERS ──────────────────────────────────────────
+# Ignore package manager caching and third-party dependencies.
+# NOTE: package-lock.json or yarn.lock SHOULD be committed to keep builds stable.
+node_modules/
+/jspm_packages/
+web_modules/
+
+# Yarn files
+.pnp
+.pnp.js
+.pnp.meta.js
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# ─── BUILD OUTPUTS & CACHES ───────────────────────────────────────────────────
+# Ignore compiled code, next/turbo builds, and static exports.
+.next/
+out/
+build/
+dist/
+target/
+.cache/
+.parcel-cache/
+.turbo/
+.vercel/
+.npm/
+
+# TypeScript cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Linters & Formatters cache
+.eslintcache
+.stylelintcache
+.prettiercache
+
+# ─── ENVIRONMENT VARIABLES & SECRETS (CRITICAL) ──────────────────────────────
+# Protect database credentials, private API keys, and certificates.
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Cryptographic keys and certificates
+*.pem
+*.key
+*.pub
+*.cert
+*.crt
+*.pfx
+*.p12
+id_rsa
+id_ed25519
+
+# Service account / OAuth credentials
+*credentials*.json
+*client_secret*.json
+
+# ─── LOCAL DATABASES ──────────────────────────────────────────────────────────
+# Prevent committing local runtime databases.
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+
+# ─── LOGS & DEBUGGING ─────────────────────────────────────────────────────────
+# Ignore debug dumps and log outputs.
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+# ─── SYSTEM / OS JUNK ─────────────────────────────────────────────────────────
+# Ignore operating system specific files.
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ─── IDEs, EDITORS, & TOOLS ───────────────────────────────────────────────────
+# Ignore workspace configurations that are machine-specific.
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+.project
+.classpath
+.settings/
