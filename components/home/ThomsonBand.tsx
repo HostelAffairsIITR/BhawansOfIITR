@@ -2,7 +2,7 @@ export default function ThomsonBand() {
   return (
     <section className="w-full border-b border-border bg-surface-raised overflow-hidden relative group h-[280px] sm:h-[380px] md:h-[440px] lg:h-[480px]">
       <img
-        src="/images/thomson-building-painting.png"
+        src="/images/thomson-building-painting.webp"
         alt="James Thomson Building, IIT Roorkee"
         className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.02]"
       />
