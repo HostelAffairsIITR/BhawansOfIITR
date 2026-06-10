@@ -45,6 +45,7 @@ export default function LeafletMap() {
       center: [29.8702, 77.8961],
       zoom: 15,
       zoomControl: false,
+      scrollWheelZoom: false,
     })
     mapRef.current = map
 
