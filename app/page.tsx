@@ -1,5 +1,4 @@
 import { BhavanCategory } from '@/lib/types'
-import { getWardens, getGalleryImages } from '@/lib/api'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -20,6 +19,12 @@ interface HomePageProps {
 export const revalidate = 60
 
 export default async function HomePage({ searchParams }: HomePageProps) {
+
+//   const supabase = await createClient()
+// const { data, error } = await supabase.from('bhavans').select('*')
+// console.log('BHAVANS TEST:', data, error)
+
+
   const params = await searchParams
   const activeTab = (['boys', 'girls', 'married', 'coed'].includes(params.tab ?? '')
     ? params.tab
@@ -71,13 +76,39 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     }
   }
 
-  // All other data fetched server-side in parallel
-  const [wardens, gallery] = await Promise.all([
-    getWardens(),
-    getGalleryImages(),
-  ])
+  let dbWardens: any[] = []
+  let dbGallery: any[] = []
+  let dbDosw: any = null
 
-  console.log('DB EVENTS:', dbEvents.length, dbEvents)
+  if (supabaseUrl && supabaseAnonKey) {
+    try {
+      const supabase = await createClient()
+      const [wardensRes, galleryRes, doswRes] = await Promise.all([
+        supabase
+          .from('wardens')
+          .select('*, bhavans(name)')
+          .eq('is_active', true)
+          .order('display_order'),
+        supabase
+          .from('gallery_images')
+          .select('*')
+          .eq('scope', 'main')
+          .order('display_order'),
+        supabase
+          .from('wardens')
+          .select('*')
+          .is('bhavan_id', null)
+          .eq('is_active', true)
+          .maybeSingle()
+      ])
+
+      if (wardensRes.data) dbWardens = wardensRes.data
+      if (galleryRes.data) dbGallery = galleryRes.data
+      if (doswRes.data) dbDosw = doswRes.data
+    } catch (err) {
+      console.warn("Supabase extra data query failed, using empty fallbacks:", err)
+    }
+  }
 
   return (
     <>
@@ -88,9 +119,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <ThomsonBand />
         <CampusMapSection />
         <BhavansSection activeTab={activeTab} selectedSlug={selectedSlug} />
-        <GallerySection images={gallery} />
-        <WardenSection wardens={wardens} />
-        <DOSWSection />
+        <GallerySection images={dbGallery} />
+        <WardenSection wardens={dbWardens} />
+        <DOSWSection dosw={dbDosw} />
       </main>
       <Footer />
     </>

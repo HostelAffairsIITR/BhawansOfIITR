@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import { getBhavanBySlug, BHAVANS } from '@/lib/bhavans-data'
-import { getBhavanGalleryImages } from '@/lib/api'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import BhavanHero from '@/components/bhavan/BhavanHero'
@@ -34,6 +33,9 @@ export default async function BhavanPage({ params }: { params: Promise<{ slug: s
   if (!bhavan) notFound()
 
   let dbNotices: any[] = []
+  let dbGallery: any[] = []
+  let dbCouncil: any[] = []
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -47,24 +49,51 @@ export default async function BhavanPage({ params }: { params: Promise<{ slug: s
         .single()
 
       if (bhavanData) {
-        const { data: noticesData } = await supabase
-          .from('content_items')
-          .select('*, notices(*, notice_attachments(*))')
-          .eq('type', 'notice')
-          .eq('status', 'published')
-          .eq('bhavan_scope', bhavanData.id)
-          .order('created_at', { ascending: false })
+        const bhavanId = bhavanData.id
 
-        if (noticesData) {
-          dbNotices = noticesData
+        // Fetch notices, gallery, and current term in parallel
+        const [noticesRes, galleryRes, termRes] = await Promise.all([
+          supabase
+            .from('content_items')
+            .select('*, notices(*, notice_attachments(*))')
+            .eq('type', 'notice')
+            .eq('status', 'published')
+            .eq('bhavan_scope', bhavanId)
+            .order('created_at', { ascending: false }),
+          supabase
+            .from('gallery_images')
+            .select('*')
+            .eq('scope', 'bhavan')
+            .eq('bhavan_id', bhavanId)
+            .order('display_order'),
+          supabase
+            .from('council_terms')
+            .select('id, label')
+            .eq('is_current', true)
+            .maybeSingle()
+        ])
+
+        if (noticesRes.data) dbNotices = noticesRes.data
+        if (galleryRes.data) dbGallery = galleryRes.data
+
+        if (termRes.data) {
+          const { data: membersRes } = await supabase
+            .from('members')
+            .select('*')
+            .eq('council_term_id', termRes.data.id)
+            .eq('bhavan_id', bhavanId)
+            .eq('group_type', 'bhavan_council')
+            .order('display_order')
+
+          if (membersRes) {
+            dbCouncil = membersRes
+          }
         }
       }
     } catch (err) {
-      console.warn("Supabase notice fetch failed, showing empty state:", err)
+      console.warn("Supabase notice/gallery/council fetch failed, showing fallback state:", err)
     }
   }
-
-  const gallery = await getBhavanGalleryImages(slug)
 
   return (
     <>
@@ -73,8 +102,8 @@ export default async function BhavanPage({ params }: { params: Promise<{ slug: s
         <BhavanHero bhavan={bhavan} />
         <NoticesSection notices={dbNotices} theme={bhavan.theme} />
         <AmenitiesSection theme={bhavan.theme} />
-        <GallerySection images={gallery} />
-        <CouncilSection bhavanName={bhavan.name} theme={bhavan.theme} />
+        <GallerySection images={dbGallery} emptyMessage="Photos coming soon" />
+        <CouncilSection bhavanName={bhavan.name} theme={bhavan.theme} members={dbCouncil} />
         <EmergencySection theme={bhavan.theme} />
       </main>
       <Footer />

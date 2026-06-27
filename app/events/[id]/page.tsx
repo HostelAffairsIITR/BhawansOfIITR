@@ -4,8 +4,8 @@ import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/server'
 import ReactMarkdown from 'react-markdown'
 import { getBhavanBySlug } from '@/lib/bhavans-data'
-import PollVoteSection from '@/components/event/PollVoteSection'
-import CommentsSection from '@/components/event/CommentsSection'
+import PollVoting from '@/components/events/PollVoting'
+import CommentsSection from '@/components/events/CommentsSection'
 import ShareSection from '@/components/event/ShareSection'
 
 interface EventDetailPageProps {
@@ -15,6 +15,10 @@ interface EventDetailPageProps {
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { id } = await params
   const supabase = await createClient()
+
+  // Get current user session
+  const { data: { user } } = await supabase.auth.getUser()
+  const currentUserId = user?.id || null
 
   // 1. Fetch main content item
   const { data: item } = await supabase
@@ -106,7 +110,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <div>
                 <span className="inline-block bg-accent/10 text-accent text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase mb-4" style={{ fontFamily: 'var(--font-mono)' }}>POLL</span>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-text mb-6" style={{ fontFamily: 'var(--font-sans)' }}>{item.title}</h1>
-                <PollVoteSection itemId={id} options={item.poll_options || []} initialVotes={votes} status={item.status} />
+                <PollVoting itemId={id} options={item.poll_options || []} initialVotes={votes} currentUserId={currentUserId} />
               </div>
             )}
 
@@ -188,7 +192,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
           {/* Comments Section */}
           {item.allows_comments && (
-            <CommentsSection itemId={id} initialComments={comments} />
+            <CommentsSection contentItemId={id} initialComments={comments} currentUserId={currentUserId} />
           )}
         </div>
       </main>

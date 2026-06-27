@@ -118,6 +118,7 @@ export interface Amenity {
   description: string
   timing?: string
   details?: string[]
+  image_url?: string | null
 }
 
 // ─── EMERGENCY CONTACT ───────────────────────────────────────────────────────
