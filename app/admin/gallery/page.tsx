@@ -1,6 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/utils/compress-image'
+
+function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/\s+/g, '-')        // replace spaces with hyphens
+    .replace(/[^a-zA-Z0-9.\-_]/g, '') // remove any other invalid characters
+    .toLowerCase()
+}
 
 interface GalleryImage {
   id: number
@@ -100,10 +108,11 @@ export default function AdminGalleryPage() {
     const selectedBhavan = scope === 'bhavan' ? parseInt(selectedBhavanId) : null
 
     try {
-      // 1. Upload to storage bucket 'gallery-images'
+      const compressed = await compressImage(newImageFile)
+      const safeName = sanitizeFilename(compressed.name)
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('gallery-images')
-        .upload(`${scope}/${Date.now()}-${newImageFile.name}`, newImageFile)
+        .upload(`${scope}/${Date.now()}-${safeName}`, compressed)
 
       if (uploadError) throw uploadError
 

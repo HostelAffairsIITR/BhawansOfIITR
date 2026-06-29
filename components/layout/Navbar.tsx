@@ -90,8 +90,8 @@ export default function Navbar() {
     <header className="w-full bg-brand sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 sm:h-[4.5rem]">
         <Link href="/" className="flex items-center gap-3 flex-shrink-0">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-brand-light ring-2 ring-text-on-brand/20 flex-shrink-0">
-            <span className="text-text-on-brand text-xs font-bold leading-none text-center" style={{ fontFamily: 'var(--font-sans)' }}>IITR</span>
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-white p-1 ring-2 ring-text-on-brand/20 flex-shrink-0 overflow-hidden">
+            <img src="/images/iitr-logo.png" alt="IITR Logo" className="w-full h-full object-contain" />
           </div>
         </Link>
       
@@ -114,6 +114,41 @@ export default function Navbar() {
             >
               My Events
             </Link>
+          )}
+
+          {/* Dev Login/Logout Buttons (Development Only) */}
+          {process.env.NODE_ENV === 'development' && (
+            user ? (
+              <button
+                onClick={async () => {
+                  await supabase.auth.signOut()
+                  window.location.reload()
+                }}
+                className="border border-text-on-brand/30 text-text-on-brand/60 hover:text-text-on-brand hover:border-text-on-brand text-[10px] font-bold px-2.5 py-1.5 rounded-lg tracking-wider uppercase transition-all duration-150 cursor-pointer shrink-0"
+                style={{ fontFamily: 'var(--font-mono)' }}
+              >
+                Dev Logout
+              </button>
+            ) : (
+              <button
+                onClick={async () => {
+                  const { error } = await supabase.auth.signInWithPassword({
+                    
+                    email: process.env.NEXT_PUBLIC_DEV_EMAIL!,
+                    password: process.env.NEXT_PUBLIC_DEV_PASSWORD!
+                  })
+                  if (error) {
+                    alert('Dev Login failed: ' + error.message)
+                  } else {
+                    window.location.reload()
+                  }
+                }}
+                className="border border-text-on-brand/30 text-text-on-brand/60 hover:text-text-on-brand hover:border-text-on-brand text-[10px] font-bold px-2.5 py-1.5 rounded-lg tracking-wider uppercase transition-all duration-150 cursor-pointer shrink-0"
+                style={{ fontFamily: 'var(--font-mono)' }}
+              >
+                Dev Login
+              </button>
+            )
           )}
 
           {/* User profile dropdown or Login button */}

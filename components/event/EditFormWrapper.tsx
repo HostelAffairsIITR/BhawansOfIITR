@@ -2,7 +2,15 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/utils/compress-image'
 import ReactMarkdown from 'react-markdown'
+
+function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/\s+/g, '-')        // replace spaces with hyphens
+    .replace(/[^a-zA-Z0-9.\-_]/g, '') // remove any other invalid characters
+    .toLowerCase()
+}
 
 interface EditFormWrapperProps {
   item: any
@@ -35,6 +43,7 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
   const [blogBody, setBlogBody] = useState(blogData?.body || '')
   const [blogExcerpt, setBlogExcerpt] = useState(blogData?.excerpt || '')
   const [blogCoverUrl, setBlogCoverUrl] = useState(blogData?.cover_image_url || '')
+  const [originalCoverUrl] = useState(blogData?.cover_image_url || '')
   const [newCoverFile, setNewCoverFile] = useState<File | null>(null)
   const [blogTab, setBlogTab] = useState<'edit' | 'preview'>('edit')
   const [isUploadingImage, setIsUploadingImage] = useState(false)
@@ -43,6 +52,7 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
   const annData = Array.isArray(item.announcements) ? item.announcements[0] : item.announcements
   const [annBody, setAnnBody] = useState(annData?.body || '')
   const [annImageUrl, setAnnImageUrl] = useState(annData?.image_url || '')
+  const [originalAnnImageUrl] = useState(annData?.image_url || '')
   const [newAnnImageFile, setNewAnnImageFile] = useState<File | null>(null)
   const [expiresAt, setExpiresAt] = useState(
     annData?.expires_at ? new Date(annData.expires_at).toISOString().slice(0, 16) : ''
@@ -61,6 +71,11 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
   const getStoragePathFromUrl = (url: string, bucketName: string) => {
     const parts = url.split(`/public/${bucketName}/`)
     return parts.length > 1 ? parts[1] : null
+  }
+
+  const getPathFromUrl = (url: string) => {
+    const parts = url.split(`/public/notice-attachments/`)
+    return parts.length > 1 ? parts[1] : ''
   }
 
   // Poll handlers
@@ -90,9 +105,11 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
 
       setIsUploadingImage(true)
       try {
+        const compressed = await compressImage(file)
+        const safeName = sanitizeFilename(compressed.name)
         const { data, error } = await supabase.storage
           .from('blog-images')
-          .upload(`${Date.now()}-${file.name}`, file)
+          .upload(`${Date.now()}-${safeName}`, compressed)
 
         if (error) throw error
 
@@ -118,9 +135,8 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
   }
 
   // Notice handlers
-  const handleRemoveExistingAttachment = (attId: string) => {
-    setRemovedAttachmentIds(prev => [...prev, attId])
-    setExistingAttachments(prev => prev.filter(att => att.id !== attId))
+  const markForRemoval = (attId: string) => {
+    setRemovedAttachmentIds(p => [...p, attId])
   }
 
   const handleAddNewNoticeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -198,11 +214,21 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
 
         let finalCoverUrl = blogCoverUrl
 
+        // If cover image was deleted or replaced, remove original from storage
+        if (originalCoverUrl && (blogCoverUrl === '' || newCoverFile)) {
+          const path = originalCoverUrl.split('/public/blog-images/')[1]
+          if (path) {
+            await supabase.storage.from('blog-images').remove([path])
+          }
+        }
+
         // 1. Upload new cover image if exists
         if (newCoverFile) {
+          const compressed = await compressImage(newCoverFile)
+          const safeName = sanitizeFilename(compressed.name)
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('blog-images')
-            .upload(`${Date.now()}-${newCoverFile.name}`, newCoverFile)
+            .upload(`${Date.now()}-${safeName}`, compressed)
 
           if (uploadError) throw uploadError
 
@@ -244,11 +270,21 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
 
         let finalImageUrl = annImageUrl
 
+        // If banner image was deleted or replaced, remove original from storage
+        if (originalAnnImageUrl && (annImageUrl === '' || newAnnImageFile)) {
+          const path = originalAnnImageUrl.split('/public/blog-images/')[1]
+          if (path) {
+            await supabase.storage.from('blog-images').remove([path])
+          }
+        }
+
         // 1. Upload new image if exists
         if (newAnnImageFile) {
+          const compressed = await compressImage(newAnnImageFile)
+          const safeName = sanitizeFilename(compressed.name)
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('blog-images')
-            .upload(`${Date.now()}-${newAnnImageFile.name}`, newAnnImageFile)
+            .upload(`${Date.now()}-${safeName}`, compressed)
 
           if (uploadError) throw uploadError
 
@@ -290,38 +326,23 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
         if (bhavanScope === 'college-wide') throw new Error('Notices require a specific Bhavan scope.')
 
         // 1. Delete removed notice attachments from database + storage
-        if (removedAttachmentIds.length > 0) {
-          // Fetch urls to delete from storage
-          const { data: filesToDelete } = await supabase
-            .from('notice_attachments')
-            .select('file_url')
-            .in('id', removedAttachmentIds)
-
-          if (filesToDelete && filesToDelete.length > 0) {
-            const paths = filesToDelete
-              .map(f => getStoragePathFromUrl(f.file_url, 'notice-attachments'))
-              .filter(Boolean) as string[]
-
-            if (paths.length > 0) {
-              await supabase.storage.from('notice-attachments').remove(paths)
-            }
+        for (const id of removedAttachmentIds) {
+          const attachment = existingAttachments.find(a => a.id === id)
+          if (attachment) {
+            await supabase.storage
+              .from('notice-attachments')
+              .remove([getPathFromUrl(attachment.file_url)])
           }
-
-          // Delete rows
-          const { error: deleteError } = await supabase
-            .from('notice_attachments')
-            .delete()
-            .in('id', removedAttachmentIds)
-
-          if (deleteError) throw deleteError
+          await supabase.from('notice_attachments').delete().eq('id', id)
         }
 
         // 2. Upload new notice files
         const uploadedNoticeFiles = await Promise.all(
           newNoticeFiles.map(async (file) => {
+            const safeName = sanitizeFilename(file.name)
             const { data, error } = await supabase.storage
               .from('notice-attachments')
-              .upload(`${Date.now()}-${file.name}`, file)
+              .upload(`${Date.now()}-${safeName}`, file)
 
             if (error) throw error
 
@@ -382,6 +403,58 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
     } catch (err: any) {
       console.error('Update failed:', err)
       setErrorMsg(err.message || 'An error occurred while updating the item.')
+      setSubmitting(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      'This will permanently delete this content and all associated files. This cannot be undone.'
+    )
+    if (!confirmed) return
+
+    setSubmitting(true)
+    setErrorMsg('')
+
+    try {
+      const blogData = Array.isArray(item.blogs) ? item.blogs[0] : item.blogs
+      const announcementData = Array.isArray(item.announcements) ? item.announcements[0] : item.announcements
+      const noticeData = Array.isArray(item.notices) ? item.notices[0] : item.notices
+
+      // Delete storage files based on type
+      if (item.type === 'blog' && blogData?.cover_image_url) {
+        const path = blogData.cover_image_url.split('/public/blog-images/')[1]
+        if (path) {
+          await supabase.storage.from('blog-images').remove([path])
+        }
+      }
+
+      if (item.type === 'announcement' && announcementData?.image_url) {
+        const path = announcementData.image_url.split('/public/blog-images/')[1]
+        if (path) {
+          await supabase.storage.from('blog-images').remove([path])
+        }
+      }
+
+      if (item.type === 'notice') {
+        const attachments = noticeData?.notice_attachments ?? []
+        const paths = attachments.map((a: any) => 
+          a.file_url.split('/public/notice-attachments/')[1]
+        ).filter(Boolean)
+        if (paths.length) {
+          await supabase.storage.from('notice-attachments').remove(paths)
+        }
+      }
+
+      // Hard delete content item (cascades to type tables, comments, permissions, votes)
+      const { error: deleteError } = await supabase.from('content_items').delete().eq('id', item.id)
+      if (deleteError) throw deleteError
+
+      // Redirect to dashboard after deletion
+      router.push('/dashboard')
+    } catch (err: any) {
+      console.error('Delete failed:', err)
+      setErrorMsg(err.message || 'An error occurred while deleting.')
       setSubmitting(false)
     }
   }
@@ -497,28 +570,45 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
 
               <div>
                 <label className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 block" style={{ fontFamily: 'var(--font-sans)' }}>
-                  Update Cover Image
+                  Cover Image
                 </label>
                 <div className="flex flex-col gap-3">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) setNewCoverFile(file)
-                    }}
-                    className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface text-text file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-light/10 file:text-brand hover:file:bg-brand-light/20 cursor-pointer"
-                  />
                   {newCoverFile ? (
-                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider" style={{ fontFamily: 'var(--font-mono)' }}>
-                      New File Selected: {newCoverFile.name}
-                    </p>
-                  ) : blogCoverUrl ? (
-                    <div className="flex items-center gap-3 bg-surface border border-border p-3.5 rounded-xl">
-                      <img src={blogCoverUrl} alt="Cover" className="w-12 h-12 object-cover rounded-lg" />
-                      <span className="text-[10px] text-text-muted truncate max-w-[200px]">Current cover image exists</span>
+                    <div className="flex items-center justify-between border border-border bg-surface p-3.5 rounded-xl shadow-xs gap-3">
+                      <span className="text-xs font-bold text-text truncate max-w-[200px] sm:max-w-xs">New image: {newCoverFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setNewCoverFile(null)}
+                        className="text-red-500 hover:text-red-700 text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                      >
+                        Remove
+                      </button>
                     </div>
-                  ) : null}
+                  ) : blogCoverUrl ? (
+                    <div className="flex items-center justify-between border border-border bg-surface p-3.5 rounded-xl shadow-xs gap-3">
+                      <div className="flex items-center gap-3">
+                        <img src={blogCoverUrl} alt="Cover" className="w-12 h-12 object-cover rounded-lg" />
+                        <span className="text-xs font-semibold text-text truncate max-w-[150px] sm:max-w-xs">Current cover image</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setBlogCoverUrl('')}
+                        className="text-red-500 hover:text-red-700 text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                      >
+                        Delete Cover
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) setNewCoverFile(file)
+                      }}
+                      className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface text-text file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-light/10 file:text-brand hover:file:bg-brand-light/20 cursor-pointer"
+                    />
+                  )}
                 </div>
               </div>
 
@@ -591,28 +681,45 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
 
               <div>
                 <label className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 block" style={{ fontFamily: 'var(--font-sans)' }}>
-                  Update Image Banner
+                  Banner Image
                 </label>
                 <div className="flex flex-col gap-3">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) setNewAnnImageFile(file)
-                    }}
-                    className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface text-text file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-light/10 file:text-brand hover:file:bg-brand-light/20 cursor-pointer"
-                  />
                   {newAnnImageFile ? (
-                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider" style={{ fontFamily: 'var(--font-mono)' }}>
-                      New File Selected: {newAnnImageFile.name}
-                    </p>
-                  ) : annImageUrl ? (
-                    <div className="flex items-center gap-3 bg-surface border border-border p-3.5 rounded-xl">
-                      <img src={annImageUrl} alt="Banner" className="w-12 h-12 object-cover rounded-lg" />
-                      <span className="text-[10px] text-text-muted truncate max-w-[200px]">Current banner exists</span>
+                    <div className="flex items-center justify-between border border-border bg-surface p-3.5 rounded-xl shadow-xs gap-3">
+                      <span className="text-xs font-bold text-text truncate max-w-[200px] sm:max-w-xs">New banner: {newAnnImageFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setNewAnnImageFile(null)}
+                        className="text-red-500 hover:text-red-700 text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                      >
+                        Remove
+                      </button>
                     </div>
-                  ) : null}
+                  ) : annImageUrl ? (
+                    <div className="flex items-center justify-between border border-border bg-surface p-3.5 rounded-xl shadow-xs gap-3">
+                      <div className="flex items-center gap-3">
+                        <img src={annImageUrl} alt="Banner" className="w-12 h-12 object-cover rounded-lg" />
+                        <span className="text-xs font-semibold text-text truncate max-w-[150px] sm:max-w-xs">Current banner image</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setAnnImageUrl('')}
+                        className="text-red-500 hover:text-red-700 text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                      >
+                        Delete Banner
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) setNewAnnImageFile(file)
+                      }}
+                      className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface text-text file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-light/10 file:text-brand hover:file:bg-brand-light/20 cursor-pointer"
+                    />
+                  )}
                 </div>
               </div>
 
@@ -654,19 +761,20 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
                   {/* Existing Attachments */}
                   {existingAttachments.length > 0 && (
                     <div className="flex flex-col gap-2">
-                      <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-1" style={{ fontFamily: 'var(--font-mono)' }}>Existing files:</p>
-                      {existingAttachments.map(att => (
-                        <div key={att.id} className="flex items-center justify-between border border-border bg-surface p-3.5 rounded-xl shadow-xs gap-3">
-                          <span className="text-xs font-bold text-text truncate max-w-[200px] sm:max-w-xs">{att.file_name}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveExistingAttachment(att.id)}
-                            className="text-red-500 hover:text-red-700 text-xs font-semibold px-2 py-1 uppercase tracking-wider cursor-pointer"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
+                      <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-1" style={{ fontFamily: 'var(--font-mono)' }}>Existing Attachments:</p>
+                      <div className="flex flex-col gap-2">
+                        {existingAttachments
+                          .filter(a => !removedAttachmentIds.includes(a.id))
+                          .map(att => (
+                            <div key={att.id} className="flex items-center justify-between border border-border bg-surface p-3.5 rounded-xl shadow-xs gap-3">
+                              <span className="text-xs font-bold text-text truncate max-w-[150px] sm:max-w-xs">{att.file_name}</span>
+                              <div className="flex gap-3">
+                                <a href={att.file_url} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline text-xs font-semibold uppercase tracking-wider">Preview</a>
+                                <button type="button" onClick={() => setRemovedAttachmentIds(p => [...p, att.id])} className="text-red-500 hover:text-red-700 text-xs font-semibold uppercase tracking-wider cursor-pointer">Remove</button>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
                     </div>
                   )}
 
@@ -742,22 +850,33 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
           )}
 
           {/* Buttons Layout */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border mt-4">
-            <button
-              type="button"
-              disabled={submitting}
-              onClick={() => handleUpdate('archived')}
-              className="btn-secondary py-3.5 px-6 rounded-xl text-xs font-bold tracking-wider uppercase text-red-500 hover:text-red-700 hover:bg-red-500/5 border border-red-500/20 text-center cursor-pointer"
-              style={{ fontFamily: 'var(--font-sans)' }}
-            >
-              {submitting ? 'PROCESSING...' : 'ARCHIVE'}
-            </button>
-            <div className="flex flex-1 gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border mt-4 justify-between items-center w-full">
+            <div className="flex gap-4 w-full sm:w-auto">
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={handleDelete}
+                className="py-3.5 px-6 rounded-xl text-xs font-bold tracking-wider uppercase bg-red-600 hover:bg-red-700 text-white text-center flex-1 sm:flex-none cursor-pointer"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                DELETE
+              </button>
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={() => handleUpdate('archived')}
+                className="btn-secondary py-3.5 px-6 rounded-xl text-xs font-bold tracking-wider uppercase text-red-500 hover:text-red-700 hover:bg-red-500/5 border border-red-500/20 text-center flex-1 sm:flex-none cursor-pointer"
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                {submitting ? 'PROCESSING...' : 'ARCHIVE'}
+              </button>
+            </div>
+            <div className="flex gap-4 w-full sm:w-auto sm:flex-1 justify-end">
               <button
                 type="button"
                 disabled={submitting}
                 onClick={() => handleUpdate('draft')}
-                className="btn-secondary py-3.5 px-6 rounded-xl text-xs font-bold tracking-wider uppercase flex-1 text-center border border-border bg-surface hover:bg-surface-muted text-text cursor-pointer"
+                className="btn-secondary py-3.5 px-6 rounded-xl text-xs font-bold tracking-wider uppercase flex-1 sm:flex-none sm:min-w-[140px] text-center border border-border bg-surface hover:bg-surface-muted text-text cursor-pointer"
                 style={{ fontFamily: 'var(--font-sans)' }}
               >
                 SAVE AS DRAFT
@@ -766,7 +885,7 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
                 type="button"
                 disabled={submitting}
                 onClick={() => handleUpdate('published')}
-                className="btn-primary py-3.5 px-6 rounded-xl text-xs font-bold tracking-wider uppercase flex-1 text-center cursor-pointer"
+                className="btn-primary py-3.5 px-6 rounded-xl text-xs font-bold tracking-wider uppercase flex-1 sm:flex-none sm:min-w-[140px] text-center cursor-pointer"
                 style={{ fontFamily: 'var(--font-sans)' }}
               >
                 {submitting ? 'SAVING...' : 'PUBLISH'}

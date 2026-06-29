@@ -23,7 +23,14 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   // 1. Fetch main content item
   const { data: item } = await supabase
     .from('content_items')
-    .select('*, blogs(*), announcements(*), notices(*), poll_options(*)')
+    .select(`
+      *,
+      blogs(*),
+      announcements(*),
+      notices(*),
+      poll_options(*),
+      users(name, image_url)
+    `)
     .eq('id', id)
     .single()
 
@@ -46,12 +53,14 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   // 3. Fetch poll votes if poll
   let votes: any[] = []
   if (item.type === 'poll') {
-    const { data: votesData } = await supabase
-      .from('poll_votes')
-      .select('poll_option_id, content_item_id, user_id')
-      .eq('content_item_id', id)
-    if (votesData) {
-      votes = votesData
+    const { data: resultsData } = await supabase
+      .rpc('get_poll_results', { poll_id: id })
+    if (resultsData) {
+      votes = resultsData.map((row: any) => ({
+        poll_option_id: String(row.option_id),
+        content_item_id: id,
+        vote_count: Number(row.vote_count)
+      }))
     }
   }
 
@@ -114,38 +123,47 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               </div>
             )}
 
-            {item.type === 'blog' && (
-              <div>
-                <span className="inline-block bg-brand/10 text-brand text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase mb-4" style={{ fontFamily: 'var(--font-mono)' }}>BLOG</span>
-                {item.blogs?.[0]?.cover_image_url && (
-                  <div className="w-full h-64 sm:h-80 rounded-xl overflow-hidden mb-6 relative">
-                    <img src={item.blogs[0].cover_image_url} alt={item.title} className="w-full h-full object-cover" />
+            {item.type === 'blog' && (() => {
+              const blogData = Array.isArray(item.blogs) ? item.blogs[0] : item.blogs
+              return (
+                <div>
+                  <span className="inline-block bg-brand/10 text-brand text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase mb-4" style={{ fontFamily: 'var(--font-mono)' }}>BLOG</span>
+                  {blogData?.cover_image_url && (
+                    <div className="w-full h-64 sm:h-80 rounded-xl overflow-hidden mb-6 relative">
+                      <img src={blogData.cover_image_url} alt={item.title} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <h1 className="text-2xl sm:text-4xl font-extrabold text-brand mb-2" style={{ fontFamily: 'var(--font-sans)' }}>{item.title}</h1>
+                  <p className="text-xs text-text-muted mb-8 font-semibold tracking-wider uppercase" style={{ fontFamily: 'var(--font-sans)' }}>
+                    BY <span>{item.users?.name ?? 'IITR Hostel Council'}</span> · {new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </p>
+                  <div className="prose dark:prose-invert max-w-none text-text leading-relaxed text-sm sm:text-base">
+                    <ReactMarkdown>{blogData?.body ?? 'No content written yet.'}</ReactMarkdown>
                   </div>
-                )}
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-brand mb-2" style={{ fontFamily: 'var(--font-sans)' }}>{item.title}</h1>
-                <p className="text-xs text-text-muted mb-8 font-semibold tracking-wider uppercase" style={{ fontFamily: 'var(--font-sans)' }}>
-                  BY {authorName.toUpperCase()} · {new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </p>
-                <div className="prose dark:prose-invert max-w-none text-text leading-relaxed text-sm sm:text-base">
-                  <ReactMarkdown>{item.blogs?.[0]?.body || 'No content written yet.'}</ReactMarkdown>
                 </div>
-              </div>
-            )}
+              )
+            })()}
 
-            {item.type === 'announcement' && (
-              <div>
-                <span className="inline-block bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase mb-4" style={{ fontFamily: 'var(--font-mono)' }}>ANNOUNCEMENT</span>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-text mb-6" style={{ fontFamily: 'var(--font-sans)' }}>{item.title}</h1>
-                {item.announcements?.[0]?.image_url && (
-                  <div className="w-full h-64 sm:h-80 rounded-xl overflow-hidden mb-6 relative">
-                    <img src={item.announcements[0].image_url} alt={item.title} className="w-full h-full object-cover" />
+            {item.type === 'announcement' && (() => {
+              const announcementData = Array.isArray(item.announcements) ? item.announcements[0] : item.announcements
+              return (
+                <div>
+                  <span className="inline-block bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase mb-4" style={{ fontFamily: 'var(--font-mono)' }}>ANNOUNCEMENT</span>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-text mb-2" style={{ fontFamily: 'var(--font-sans)' }}>{item.title}</h1>
+                  <p className="text-xs text-text-muted mb-8 font-semibold tracking-wider uppercase" style={{ fontFamily: 'var(--font-sans)' }}>
+                    BY <span>{item.users?.name ?? 'IITR Hostel Council'}</span> · {new Date(item.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </p>
+                  {announcementData?.image_url && (
+                    <div className="w-full h-64 sm:h-80 rounded-xl overflow-hidden mb-6 relative">
+                      <img src={announcementData.image_url} alt={item.title} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="text-text leading-relaxed text-sm sm:text-base whitespace-pre-wrap">
+                    <p>{announcementData?.body ?? 'No content written yet.'}</p>
                   </div>
-                )}
-                <div className="text-text leading-relaxed text-sm sm:text-base whitespace-pre-wrap">
-                  {item.announcements?.[0]?.body || 'No announcement details provided.'}
                 </div>
-              </div>
-            )}
+              )
+            })()}
 
             {item.type === 'notice' && (
               <div>

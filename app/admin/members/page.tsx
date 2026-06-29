@@ -1,6 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/utils/compress-image'
+
+function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/\s+/g, '-')        // replace spaces with hyphens
+    .replace(/[^a-zA-Z0-9.\-_]/g, '') // remove any other invalid characters
+    .toLowerCase()
+}
 
 interface CouncilTerm {
   id: number
@@ -234,9 +242,11 @@ export default function AdminMembersPage() {
 
       // 1. Upload photo if provided
       if (newPhotoFile) {
+        const compressed = await compressImage(newPhotoFile)
+        const safeName = sanitizeFilename(compressed.name)
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('member-photos')
-          .upload(`${Date.now()}-${newPhotoFile.name}`, newPhotoFile)
+          .upload(`${Date.now()}-${safeName}`, compressed)
 
         if (uploadError) throw uploadError
 

@@ -45,8 +45,8 @@ export default async function BhavanPage({ params }: { params: Promise<{ slug: s
       const { data: bhavanData } = await supabase
         .from('bhavans')
         .select('id, name')
-        .eq('name', bhavan.name)
-        .single()
+        .in('name', [bhavan.name, 'Vivekanand Bhawan'])
+        .maybeSingle()
 
       if (bhavanData) {
         const bhavanId = bhavanData.id
@@ -101,7 +101,7 @@ export default async function BhavanPage({ params }: { params: Promise<{ slug: s
       <main>
         <BhavanHero bhavan={bhavan} />
         <NoticesSection notices={dbNotices} theme={bhavan.theme} />
-        <AmenitiesSection theme={bhavan.theme} />
+        <AmenitiesSection theme={bhavan.theme} bhavanSlug={bhavan.slug} />
         <GallerySection images={dbGallery} emptyMessage="Photos coming soon" />
         <CouncilSection bhavanName={bhavan.name} theme={bhavan.theme} members={dbCouncil} />
         <EmergencySection theme={bhavan.theme} />

@@ -4,6 +4,14 @@ import { useRouter } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/utils/compress-image'
+
+function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/\s+/g, '-')        // replace spaces with hyphens
+    .replace(/[^a-zA-Z0-9.\-_]/g, '') // remove any other invalid characters
+    .toLowerCase()
+}
 
 export default function CreateAnnouncementPage() {
   const [loading, setLoading] = useState(true)
@@ -102,9 +110,11 @@ export default function CreateAnnouncementPage() {
 
       // 1. Upload image if selected
       if (imageFile) {
+        const compressed = await compressImage(imageFile)
+        const safeName = sanitizeFilename(compressed.name)
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('blog-images')
-          .upload(`${Date.now()}-${imageFile.name}`, imageFile)
+          .upload(`${Date.now()}-${safeName}`, compressed)
 
         if (uploadError) throw uploadError
 

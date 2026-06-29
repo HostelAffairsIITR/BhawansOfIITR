@@ -5,6 +5,13 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/client'
 
+function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/\s+/g, '-')        // replace spaces with hyphens
+    .replace(/[^a-zA-Z0-9.\-_]/g, '') // remove any other invalid characters
+    .toLowerCase()
+}
+
 export default function CreateNoticePage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -106,9 +113,10 @@ export default function CreateNoticePage() {
       // 1. Upload attachments in parallel
       const uploadedFiles = await Promise.all(
         attachmentFiles.map(async (file) => {
+          const safeName = sanitizeFilename(file.name)
           const { data, error } = await supabase.storage
             .from('notice-attachments')
-            .upload(`${Date.now()}-${file.name}`, file)
+            .upload(`${Date.now()}-${safeName}`, file)
 
           if (error) throw error
 
@@ -126,6 +134,7 @@ export default function CreateNoticePage() {
       )
 
       // 2. Insert content_item
+      const userId = user.id
       const { data: item, error: itemError } = await supabase
         .from('content_items')
         .insert({
@@ -135,14 +144,14 @@ export default function CreateNoticePage() {
           bhavan_scope: parseInt(selectedBhavanId),
           allows_comments: false,
           allows_share: false,
-          created_by: user.id
+          created_by: userId
         })
         .select()
         .single()
 
       if (itemError) throw itemError
 
-      // 3. Insert notice
+      // 3. Insert notice body
       const { error: noticeError } = await supabase
         .from('notices')
         .insert({
@@ -152,7 +161,18 @@ export default function CreateNoticePage() {
 
       if (noticeError) throw noticeError
 
-      // 4. Insert notice_attachments if any
+      // 4. Insert permissions row BEFORE attachments
+      const { error: permError } = await supabase
+        .from('permissions')
+        .insert({
+          content_item_id: item.id,
+          user_id: userId,
+          role: 'manager'
+        })
+
+      if (permError) throw permError
+
+      // 5. Only now insert attachments
       if (uploadedFiles.length > 0) {
         const { error: attError } = await supabase
           .from('notice_attachments')
@@ -168,17 +188,6 @@ export default function CreateNoticePage() {
 
         if (attError) throw attError
       }
-
-      // 5. Insert permissions
-      const { error: permError } = await supabase
-        .from('permissions')
-        .insert({
-          content_item_id: item.id,
-          user_id: user.id,
-          role: 'manager'
-        })
-
-      if (permError) throw permError
 
       router.push('/dashboard')
     } catch (err: any) {

@@ -62,13 +62,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           .map((item: any) => item.id)
 
         if (pollIds.length > 0) {
-          const { data: votesData } = await supabase
-            .from('poll_votes')
-            .select('poll_option_id, content_item_id')
-            .in('content_item_id', pollIds)
-          if (votesData) {
-            dbVotes = votesData
-          }
+          const resultsPromises = pollIds.map(async (pollId: string) => {
+            const { data } = await supabase.rpc('get_poll_results', { poll_id: pollId })
+            return (data || []).map((row: any) => ({
+              poll_option_id: String(row.option_id),
+              content_item_id: pollId,
+              vote_count: Number(row.vote_count)
+            }))
+          })
+          const allResults = await Promise.all(resultsPromises)
+          dbVotes = allResults.flat()
         }
       }
     } catch (err) {

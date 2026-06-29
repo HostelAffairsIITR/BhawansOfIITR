@@ -1,3 +1,5 @@
+'use client'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { BHAVANS, BHAVAN_CATEGORIES, getBhavansByCategory } from '@/lib/bhavans-data'
 import { BhavanCategory, Bhavan } from '@/lib/types'
@@ -28,6 +30,13 @@ function BhavanButton({ bhavan, isSelected }: { bhavan: Bhavan; isSelected: bool
 }
 
 function BhavanDetail({ bhavan }: { bhavan: Bhavan | undefined }) {
+  const [imgError, setImgError] = useState(false)
+
+  // Reset imgError when selected bhavan changes
+  useEffect(() => {
+    setImgError(false)
+  }, [bhavan?.slug])
+
   if (!bhavan) {
     return (
       <div className="rounded-2xl border border-border bg-surface-raised p-10 sm:p-16 flex items-center justify-center min-h-[200px] shadow-sm">
@@ -81,11 +90,22 @@ function BhavanDetail({ bhavan }: { bhavan: Bhavan | undefined }) {
           </div>
         </div>
 
-        {/* Right Side: Photo Placeholder */}
-        <div className="w-full md:w-80 lg:w-96 bg-gradient-to-br from-brand-light to-brand-muted flex flex-col items-center justify-center min-h-[200px] md:min-h-0 p-8 text-center text-white/95">
-          <span className="text-2xl mb-2">🏢</span>
-          <span className="text-sm font-semibold tracking-wide uppercase">{bhavan.name}</span>
-          <span className="text-[10px] text-white/60 font-mono mt-1">[ Photo Coming Soon ]</span>
+        {/* Right Side: Photo */}
+        <div className="w-full md:w-80 lg:w-96 relative min-h-[200px] md:min-h-0 overflow-hidden bg-gradient-to-br from-brand-light to-brand-muted flex flex-col items-center justify-center p-8 text-center text-white/95">
+          {!imgError ? (
+            <img 
+              src={`/images/bhavans/${bhavan.slug}.webp`} 
+              alt={bhavan.name} 
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <>
+              <span className="text-2xl mb-2">🏢</span>
+              <span className="text-sm font-semibold tracking-wide uppercase">{bhavan.name}</span>
+              <span className="text-[10px] text-white/60 font-mono mt-1">[ Photo Coming Soon ]</span>
+            </>
+          )}
         </div>
       </div>
     </div>

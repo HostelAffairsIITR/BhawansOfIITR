@@ -1,6 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/utils/compress-image'
+
+function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/\s+/g, '-')        // replace spaces with hyphens
+    .replace(/[^a-zA-Z0-9.\-_]/g, '') // remove any other invalid characters
+    .toLowerCase()
+}
 
 interface Warden {
   id: number
@@ -89,9 +97,11 @@ export default function AdminWardensPage() {
 
       // Upload photo to warden-photos bucket
       if (photoFile) {
+        const compressed = await compressImage(photoFile)
+        const safeName = sanitizeFilename(compressed.name)
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('warden-photos')
-          .upload(`${Date.now()}-${photoFile.name}`, photoFile)
+          .upload(`${Date.now()}-${safeName}`, compressed)
 
         if (uploadError) throw uploadError
 
@@ -157,9 +167,11 @@ export default function AdminWardensPage() {
 
       // Upload edit photo if selected
       if (editPhotoFile) {
+        const compressed = await compressImage(editPhotoFile)
+        const safeName = sanitizeFilename(compressed.name)
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('warden-photos')
-          .upload(`${Date.now()}-${editPhotoFile.name}`, editPhotoFile)
+          .upload(`${Date.now()}-${safeName}`, compressed)
 
         if (uploadError) throw uploadError
 

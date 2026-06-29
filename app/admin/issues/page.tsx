@@ -40,7 +40,7 @@ export default function AdminIssuesPage() {
     try {
       let query = supabase
         .from('flagged_issues')
-        .select('*, users(name, enrollment_id)')
+        .select('*, users!flagged_issues_user_id_fkey(name, enrollment_id)')
         .order('detected_at', { ascending: false })
 
       if (!showResolved) {

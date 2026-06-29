@@ -14,10 +14,13 @@ export default async function DashboardPage() {
   }
 
   // Fetch permissions (events managed/volunteered)
-  const { data: permissions } = await supabase
+  const { data: perms } = await supabase
     .from('permissions')
     .select('*, content_items(*, blogs(*), announcements(*), notices(*), poll_options(*))')
     .eq('user_id', user.id)
+
+  // Filter out deleted items client-side
+  const activePerms = perms?.filter(p => p.content_items?.status !== 'deleted') ?? []
 
   // Check user_roles (for global manager checks)
   const { data: roles } = await supabase
@@ -36,7 +39,7 @@ export default async function DashboardPage() {
   const hasManagerRole = roles ? roles.some(r => r.role === 'manager') : false
   const canCreate = isSuperAdmin || hasManagerRole
 
-  const listPermissions = permissions || []
+  const listPermissions = activePerms
   const managing = listPermissions.filter(p => (p.role === 'manager' || p.role === 'co_manager') && p.content_items)
   const volunteering = listPermissions.filter(p => p.role === 'volunteer' && p.content_items)
 

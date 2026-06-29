@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BhavanTheme, Amenity } from '@/lib/types'
 
 const AMENITIES: Amenity[] = [
@@ -59,9 +59,22 @@ const AMENITIES: Amenity[] = [
   },
 ]
 
-export default function AmenitiesSection({ theme }: { theme: BhavanTheme }) {
+export default function AmenitiesSection({ 
+  theme, 
+  bhavanSlug 
+}: { 
+  theme: BhavanTheme
+  bhavanSlug: string 
+}) {
   const [activeId, setActiveId] = useState<string>(AMENITIES[0].id)
+  const [imgError, setImgError] = useState(false)
+
   const active = AMENITIES.find(a => a.id === activeId)!
+
+  // Reset image error state when active tab or hostel changes
+  useEffect(() => {
+    setImgError(false)
+  }, [activeId, bhavanSlug])
 
   return (
     <section id="amenities" className="py-14 sm:py-20 border-b border-border bg-surface/30">
@@ -146,12 +159,13 @@ export default function AmenitiesSection({ theme }: { theme: BhavanTheme }) {
           </div>
 
           {/* Right side (40% width) */}
-          <div className="md:w-[40%] min-h-[220px] md:min-h-0 relative flex">
-            {active.image_url ? (
+          <div className="md:w-[40%] min-h-[220px] md:min-h-0 relative flex overflow-hidden">
+            {!imgError ? (
               <img 
-                src={active.image_url} 
+                src={`/images/bhavans/${bhavanSlug}/amenities/${active.id}.webp`} 
                 alt={active.name} 
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-cover"
+                onError={() => setImgError(true)}
               />
             ) : (
               <div 

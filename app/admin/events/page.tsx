@@ -58,7 +58,7 @@ export default function AdminEventsPage() {
     try {
       const { data, error } = await supabase
         .from('content_items')
-        .select('*, bhavans(name), permissions(user_id, role, users(name))')
+        .select('*, bhavans(name), permissions(user_id, role, users!permissions_user_id_fkey(name))')
         .order('created_at', { ascending: false })
 
       if (error) throw error

@@ -63,7 +63,7 @@ export interface Notice {
 export type BhavanCategory = 'boys' | 'girls' | 'married' | 'coed'
 
 export interface BhavanTheme {
-  primary: string        // e.g. "#C2410C" (orange for Vivekanand)
+  primary: string        // e.g. "#C2410C" (orange for Vivekananda)
   primaryLight: string   // e.g. "#FED7AA"
   primaryDark: string    // e.g. "#7C2D12"
 }

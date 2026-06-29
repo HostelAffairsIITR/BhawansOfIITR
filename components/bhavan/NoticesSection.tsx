@@ -71,32 +71,19 @@ function NoticeCard({ item, theme }: { item: DbNoticeItem; theme: BhavanTheme })
       </div>
 
       {attachments.length > 0 && (
-        <div className="flex flex-col gap-2 mt-2 pt-4 border-t border-border/50">
-          <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-1" style={{ fontFamily: 'var(--font-mono)' }}>Attachments:</p>
-          <div className="flex flex-col gap-2">
-            {attachments.map(att => (
-              <div key={att.id} className="flex items-center justify-between bg-surface border border-border px-4 py-2.5 rounded-xl shadow-xs gap-3">
-                <span className="text-xs font-semibold text-text truncate max-w-[200px] sm:max-w-xs">{att.file_name}</span>
-                <a
-                  href={att.file_url}
-                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-extrabold tracking-wider uppercase transition-all duration-200 border shrink-0 hover:bg-surface-muted cursor-pointer"
-                  style={{
-                    fontFamily: 'var(--font-sans)',
-                    color: theme.primary,
-                    borderColor: `${theme.primary}20`,
-                  }}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  <span>Download</span>
-                </a>
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border/50">
+          {attachments.map(att => (
+            <a 
+              key={att.id}
+              href={att.file_url}
+              download={att.file_name}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary text-xs px-3 py-1.5"
+            >
+              {att.file_name}
+            </a>
+          ))}
         </div>
       )}
     </article>

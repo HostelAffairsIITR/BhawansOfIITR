@@ -4,7 +4,15 @@ import { useRouter } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/client'
+import { compressImage } from '@/lib/utils/compress-image'
 import ReactMarkdown from 'react-markdown'
+
+function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/\s+/g, '-')        // replace spaces with hyphens
+    .replace(/[^a-zA-Z0-9.\-_]/g, '') // remove any other invalid characters
+    .toLowerCase()
+}
 
 export default function CreateBlogPage() {
   const [loading, setLoading] = useState(true)
@@ -87,9 +95,11 @@ export default function CreateBlogPage() {
 
       setIsUploadingImage(true)
       try {
+        const compressed = await compressImage(file)
+        const safeName = sanitizeFilename(compressed.name)
         const { data, error } = await supabase.storage
           .from('blog-images')
-          .upload(`${Date.now()}-${file.name}`, file)
+          .upload(`${Date.now()}-${safeName}`, compressed)
 
         if (error) throw error
 
@@ -153,9 +163,11 @@ export default function CreateBlogPage() {
 
       // 1. Upload Cover Image if selected
       if (coverImageFile) {
+        const compressed = await compressImage(coverImageFile)
+        const safeName = sanitizeFilename(compressed.name)
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('blog-images')
-          .upload(`${Date.now()}-${coverImageFile.name}`, coverImageFile)
+          .upload(`${Date.now()}-${safeName}`, compressed)
 
         if (uploadError) throw uploadError
 

@@ -16,7 +16,7 @@ export const MOCK_EVENTS: AnyEvent[] = [
     totalVotes: 1247,
     options: [
       { id: 'a', label: 'Ganga Bhawan', votes: 412 },
-      { id: 'b', label: 'Vivekanand Bhawan', votes: 389 },
+      { id: 'b', label: 'Vivekananda Bhawan', votes: 389 },
       { id: 'c', label: 'Cautley Bhawan', votes: 284 },
       { id: 'd', label: 'Others', votes: 162 },
     ],
@@ -45,7 +45,7 @@ export const MOCK_EVENTS: AnyEvent[] = [
     totalVotes: 892,
     options: [
       { id: 'a', label: 'Azad Bhawan', votes: 310 },
-      { id: 'b', label: 'Vivekanand Bhawan', votes: 287 },
+      { id: 'b', label: 'Vivekananda Bhawan', votes: 287 },
       { id: 'c', label: 'Rajendra Bhawan', votes: 195 },
       { id: 'd', label: 'Others', votes: 100 },
     ],
@@ -66,7 +66,7 @@ export const MOCK_EVENTS: AnyEvent[] = [
 export const MOCK_WARDENS: Warden[] = [
   { name: 'Prof. R. K. Sharma', bhavanName: 'Azad Bhawan', bhavanSlug: 'azad' },
   { name: 'Prof. S. Mehta', bhavanName: 'Ganga Bhawan', bhavanSlug: 'ganga' },
-  { name: 'Prof. A. Verma', bhavanName: 'Vivekanand Bhawan', bhavanSlug: 'vivekanand' },
+  { name: 'Prof. A. Verma', bhavanName: 'Vivekananda Bhawan', bhavanSlug: 'vivekananda' },
   { name: 'Prof. P. Singh', bhavanName: 'Rajendra Bhawan', bhavanSlug: 'rajendra' },
   { name: 'Prof. M. Gupta', bhavanName: 'Sarojini Bhawan', bhavanSlug: 'sarojini' },
   { name: 'Prof. K. Tiwari', bhavanName: 'Cautley Bhawan', bhavanSlug: 'cautley' },

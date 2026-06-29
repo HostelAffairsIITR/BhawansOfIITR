@@ -47,13 +47,16 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       .map((item) => item.id)
 
     if (pollIds.length > 0) {
-      const { data: votesData } = await supabase
-        .from('poll_votes')
-        .select('poll_option_id, content_item_id')
-        .in('content_item_id', pollIds)
-      if (votesData) {
-        votes = votesData
-      }
+      const resultsPromises = pollIds.map(async (pollId: string) => {
+        const { data } = await supabase.rpc('get_poll_results', { poll_id: pollId })
+        return (data || []).map((row: any) => ({
+          poll_option_id: String(row.option_id),
+          content_item_id: pollId,
+          vote_count: Number(row.vote_count)
+        }))
+      })
+      const allResults = await Promise.all(resultsPromises)
+      votes = allResults.flat()
     }
   }
 

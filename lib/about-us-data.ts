@@ -45,7 +45,7 @@ export const SECRETARIAT_TEAMS: SecretariatMember[] = [
   { name: 'Srishti Das', role: 'UI/UX Lead', team: 'Design', year: '3rd Year', bhavan: 'Indira Bhawan' },
   { name: 'Madhav Nair', role: 'Creative Director', team: 'Design', year: '2nd Year', bhavan: 'Malviya Bhawan' },
   { name: 'Meera Shah', role: 'Illustrator Coordinator', team: 'Design', year: '2nd Year', bhavan: 'Sarojini Bhawan' },
-  { name: 'Varun Patel', role: 'Design Member', team: 'Design', year: '2nd Year', bhavan: 'Vivekanand Bhawan' },
+  { name: 'Varun Patel', role: 'Design Member', team: 'Design', year: '2nd Year', bhavan: 'Vivekananda Bhawan' },
 
   // Editorials Team
   { name: 'Shreya Ghoshal', role: 'Editorials Head', team: 'Editorials', year: '3rd Year', bhavan: 'Kasturba Bhawan' },
@@ -55,7 +55,7 @@ export const SECRETARIAT_TEAMS: SecretariatMember[] = [
   { name: 'Rahul Sen', role: 'Writer', team: 'Editorials', year: '2nd Year', bhavan: 'Ganga Bhawan' },
 
   // Web Development Team
-  { name: 'Dhruv Kandpal', role: 'Web Development Head', team: 'Web Development', year: '3rd Year', bhavan: 'Vivekanand Bhawan' },
+  { name: 'Dhruv Kandpal', role: 'Web Development Head', team: 'Web Development', year: '3rd Year', bhavan: 'Vivekananda Bhawan' },
   { name: 'Rohit Kumar', role: 'Full Stack Engineer', team: 'Web Development', year: '3rd Year', bhavan: 'Govind Bhawan' },
   { name: 'Neha Sharma', role: 'Frontend Engineer', team: 'Web Development', year: '2nd Year', bhavan: 'Sarojini Bhawan' },
   { name: 'Siddharth Jain', role: 'DevOps Lead', team: 'Web Development', year: '3rd Year', bhavan: 'Rajendra Bhawan' },
