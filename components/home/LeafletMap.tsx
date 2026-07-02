@@ -6,27 +6,27 @@ import { BHAVANS } from '@/lib/bhavans-data'
 import { useRouter } from 'next/navigation'
 
 const BHAVAN_COORDS: Record<string, [number, number]> = {
-  azad: [29.8643, 77.8964],
-  cautley: [29.8694, 77.9009],
-  ganga: [29.8711, 77.8974],
-  govind: [29.8658, 77.8988],
-  jawahar: [29.8682, 77.8981],
-  rajendra: [29.8633, 77.8938],
-  radhakrishnan: [29.8623, 77.8972],
-  rajiv: [29.8741, 77.8931],
-  ravindra: [29.8719, 77.8942],
-  malviya: [29.8641, 77.8948],
-  vivekanand: [29.8679, 77.8935],
-  sarojini: [29.8714, 77.8989],
-  kasturba: [29.8651, 77.8961],
-  indira: [29.8648, 77.8942],
-  himalaya: [29.8628, 77.8931],
+  azad: [29.8654, 77.8914],
+  cautley: [29.8719, 77.8950],
+  ganga: [29.8713, 77.8945],
+  govind: [29.8621, 77.8946],
+  jawahar: [29.8637, 77.9005],
+  rajendra: [29.8709, 77.8935],
+  radhakrishnan: [29.8716, 77.8953],
+  rajiv: [29.8696, 77.8950],
+  ravindra: [29.8651, 77.8924],
+  malviya: [29.8670, 77.8930],
+  vivekananda: [29.860796800297475, 77.89738017782433],
+  sarojini: [29.8646, 77.8999],
+  kasturba: [29.8672, 77.9012],
+  indira: [29.8680, 77.8960],
+  himalaya: [29.8607, 77.8967],
   'gp-hostel': [29.8604, 77.8951],
   'mr-chopra': [29.8614, 77.8934],
   'azad-wing': [29.8649, 77.8959],
   'an-khosla': [29.8618, 77.8988],
   kih: [29.8627, 77.8993],
-  vigyan: [29.8671, 77.8921],
+  vigyan: [29.8611, 77.9001],
 }
 
 export default function LeafletMap() {
@@ -35,7 +35,38 @@ export default function LeafletMap() {
   const userMarkerRef = useRef<L.Marker | null>(null)
   const [locateError, setLocateError] = useState<string | null>(null)
   const [locating, setLocating] = useState(false)
+  const [mapFocused, setMapFocused] = useState(false)
   const router = useRouter()
+
+  // Disable interaction on mobile unless clicked/tapped inside map container
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      if (mapRef.current && mapContainerRef.current) {
+        if (!mapContainerRef.current.contains(event.target as Node)) {
+          if (window.matchMedia('(max-width: 640px)').matches) {
+            mapRef.current.dragging.disable()
+            mapRef.current.touchZoom.disable()
+            setMapFocused(false)
+          }
+        }
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [])
+
+  const handleMapClick = () => {
+    if (mapRef.current && window.matchMedia('(max-width: 640px)').matches) {
+      mapRef.current.dragging.enable()
+      mapRef.current.touchZoom.enable()
+      setMapFocused(true)
+    }
+  }
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return
@@ -46,6 +77,8 @@ export default function LeafletMap() {
       zoom: 15,
       zoomControl: false,
       scrollWheelZoom: false,
+      dragging: !window.matchMedia('(max-width: 640px)').matches,
+      touchZoom: !window.matchMedia('(max-width: 640px)').matches,
     })
     mapRef.current = map
 
@@ -166,8 +199,16 @@ export default function LeafletMap() {
   }
 
   return (
-    <div className="relative w-full h-full min-h-[480px]">
+    <div className="relative w-full h-full min-h-[480px]" onClick={handleMapClick}>
       <div ref={mapContainerRef} className="w-full h-full min-h-[480px] z-0" />
+
+      {!mapFocused && (
+        <div className="absolute inset-0 bg-black/5 sm:hidden flex items-center justify-center pointer-events-none z-[400]">
+          <div className="bg-white border border-gray-200 px-4 py-2.5 rounded-xl text-[10px] font-bold tracking-wider uppercase text-gray-800 shadow-md pointer-events-auto">
+            Tap Map to Interact
+          </div>
+        </div>
+      )}
 
       <button
         onClick={locateUser}

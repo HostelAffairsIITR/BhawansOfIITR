@@ -1,8 +1,11 @@
+'use client'
+import { useState } from 'react'
 import Link from 'next/link'
 import { Bhavan } from '@/lib/types'
 
 export default function BhavanHero({ bhavan }: { bhavan: Bhavan }) {
   const { theme } = bhavan
+  const [imgError, setImgError] = useState(false)
 
   return (
     <section
@@ -99,12 +102,20 @@ export default function BhavanHero({ bhavan }: { bhavan: Bhavan }) {
 
           {/* Right — Image */}
           <div className="w-full md:w-2/5 min-h-[260px] md:min-h-0 flex items-center justify-center relative overflow-hidden bg-black/10 backdrop-blur-xs md:border-l border-white/10">
-            <div className="w-full h-full flex items-center justify-center" style={{ background: `${theme.primaryDark}30` }}>
-              <span className="text-xs font-bold tracking-wider text-center px-8 opacity-40 uppercase" style={{ fontFamily: 'var(--font-sans)', color: theme.primaryLight }}>
-                [ {bhavan.name} Photograph ]
-              </span>
-            </div>
-            {/* Replace with: <Image src={bhavan.coverImage} alt={bhavan.name} fill className="object-cover" /> */}
+            {!imgError ? (
+              <img 
+                src={`/images/bhavans/${bhavan.slug}.webp`} 
+                alt={bhavan.name} 
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center" style={{ background: `${theme.primaryDark}30` }}>
+                <span className="text-xs font-bold tracking-wider text-center px-8 opacity-40 uppercase" style={{ fontFamily: 'var(--font-sans)', color: theme.primaryLight }}>
+                  [ {bhavan.name} Photograph ]
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

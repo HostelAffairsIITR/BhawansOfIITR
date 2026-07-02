@@ -1,13 +1,41 @@
-import { Notice, BhavanTheme } from '@/lib/types'
+import { BhavanTheme } from '@/lib/types'
 
-function NoticeCard({ notice, theme }: { notice: Notice; theme: BhavanTheme }) {
-  const isUrgent = notice.priority === 'urgent'
-  const date = new Date(notice.postedAt)
+export interface DbNoticeItem {
+  id: string
+  title: string
+  priority?: boolean | string | null
+  created_at: string
+  notices?: {
+    body: string
+    notice_attachments?: {
+      id: string;
+      file_url: string;
+      file_name: string;
+      file_type: string;
+    }[] | null
+  }[] | {
+    body: string
+    notice_attachments?: {
+      id: string;
+      file_url: string;
+      file_name: string;
+      file_type: string;
+    }[] | null
+  } | null
+}
+
+function NoticeCard({ item, theme }: { item: DbNoticeItem; theme: BhavanTheme }) {
+  const isUrgent = item.priority === true || item.priority === 'true' || item.priority === 'urgent'
+  const date = new Date(item.created_at)
   const dateStr = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()
+
+  const noticesData = Array.isArray(item.notices) ? item.notices[0] : item.notices
+  const body = noticesData?.body || ''
+  const attachments = noticesData?.notice_attachments || []
 
   return (
     <article
-      className="border border-border border-l-4 rounded-r-2xl rounded-l-md p-5 sm:p-6 transition-all duration-200 shadow-xs hover:shadow-sm flex flex-col sm:flex-row sm:items-start justify-between gap-5 bg-surface-raised"
+      className="border border-border border-l-4 rounded-r-2xl rounded-l-md p-5 sm:p-6 transition-all duration-200 shadow-xs hover:shadow-sm flex flex-col gap-5 bg-surface-raised"
       style={{
         borderLeftColor: isUrgent ? 'var(--color-accent)' : theme.primary,
       }}
@@ -34,38 +62,35 @@ function NoticeCard({ notice, theme }: { notice: Notice; theme: BhavanTheme }) {
         </div>
 
         <h3 className="text-base font-bold text-text leading-snug mb-1.5" style={{ fontFamily: 'var(--font-sans)' }}>
-          {notice.title}
+          {item.title}
         </h3>
 
-        <p className="text-xs sm:text-sm text-text-muted leading-relaxed max-w-3xl" style={{ fontFamily: 'var(--font-sans)' }}>
-          {notice.body}
+        <p className="text-xs sm:text-sm text-text-muted leading-relaxed max-w-3xl whitespace-pre-wrap" style={{ fontFamily: 'var(--font-sans)' }}>
+          {body}
         </p>
       </div>
 
-      {notice.attachmentUrl && (
-        <a
-          href={notice.attachmentUrl}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs border shrink-0 w-fit cursor-pointer self-start sm:self-center"
-          style={{
-            fontFamily: 'var(--font-sans)',
-            color: theme.primary,
-            backgroundColor: `${theme.primaryLight}25`,
-            borderColor: `${theme.primary}20`,
-          }}
-          download
-        >
-          {/* Download Icon */}
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-          <span>Download Attachment</span>
-        </a>
+      {attachments.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border/50">
+          {attachments.map(att => (
+            <a 
+              key={att.id}
+              href={att.file_url}
+              download={att.file_name}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary text-xs px-3 py-1.5"
+            >
+              {att.file_name}
+            </a>
+          ))}
+        </div>
       )}
     </article>
   )
 }
 
-export default function NoticesSection({ notices, theme }: { notices: Notice[]; theme: BhavanTheme }) {
+export default function NoticesSection({ notices, theme }: { notices: DbNoticeItem[]; theme: BhavanTheme }) {
   return (
     <section id="notices" className="py-14 sm:py-20 border-b border-border bg-surface/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -86,13 +111,13 @@ export default function NoticesSection({ notices, theme }: { notices: Notice[]; 
         {notices.length === 0 ? (
           <div className="rounded-2xl border border-border p-12 text-center bg-surface-raised shadow-xs">
             <p className="text-text-muted/50 text-xs font-semibold tracking-wider uppercase" style={{ fontFamily: 'var(--font-sans)' }}>
-              No notices at this time
+              No current notices for this bhavan
             </p>
           </div>
         ) : (
           <div className="max-h-[520px] overflow-y-auto pr-2 flex flex-col gap-4">
             {notices.map(notice => (
-              <NoticeCard key={notice.id} notice={notice} theme={theme} />
+              <NoticeCard key={notice.id} item={notice} theme={theme} />
             ))}
           </div>
         )}
@@ -100,4 +125,3 @@ export default function NoticesSection({ notices, theme }: { notices: Notice[]; 
     </section>
   )
 }
-
