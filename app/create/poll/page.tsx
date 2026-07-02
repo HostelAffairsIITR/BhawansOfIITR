@@ -11,6 +11,8 @@ export default function CreatePollPage() {
   const [errorMsg, setErrorMsg] = useState('')
   const [bhavans, setBhavans] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
+  const [isBhavanScopeRestricted, setIsBhavanScopeRestricted] = useState(false)
+  const [allowedBhavanIds, setAllowedBhavanIds] = useState<number[] | null>(null)
 
   // Form states
   const [title, setTitle] = useState('')
@@ -41,7 +43,7 @@ export default function CreatePollPage() {
         // Fetch roles
         const { data: roles } = await supabase
           .from('user_roles')
-          .select('role')
+          .select('role, bhavan_id')
           .eq('user_id', currentUser.id)
 
         const isSuperAdmin = profile?.is_super_admin || false
@@ -52,6 +54,16 @@ export default function CreatePollPage() {
           return
         }
 
+        const userBhavanIds = roles
+          ? roles.map(r => r.bhavan_id).filter((id): id is number => id !== null)
+          : []
+        const hasGlobalScope = isSuperAdmin || (roles ? roles.some(r => r.bhavan_id === null) : false)
+
+        let allowedIds: number[] | null = null
+        if (!hasGlobalScope && userBhavanIds.length > 0) {
+          allowedIds = Array.from(new Set(userBhavanIds))
+        }
+
         // Fetch bhavans
         const { data: bhavansList } = await supabase
           .from('bhavans')
@@ -59,7 +71,17 @@ export default function CreatePollPage() {
           .order('name')
 
         if (bhavansList) {
-          setBhavans(bhavansList)
+          if (allowedIds) {
+            const filtered = bhavansList.filter(b => allowedIds!.includes(b.id))
+            setBhavans(filtered)
+            setIsBhavanScopeRestricted(true)
+            setAllowedBhavanIds(allowedIds)
+            if (allowedIds.length > 0) {
+              setBhavanScope(allowedIds[0].toString())
+            }
+          } else {
+            setBhavans(bhavansList)
+          }
         }
       } catch (err) {
         console.error('Auth verification failed:', err)
@@ -261,9 +283,12 @@ export default function CreatePollPage() {
                 <select
                   value={bhavanScope}
                   onChange={(e) => setBhavanScope(e.target.value)}
-                  className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-text"
+                  disabled={isBhavanScopeRestricted && allowedBhavanIds?.length === 1}
+                  className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-text disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <option value="college-wide">College-wide (All Hostels)</option>
+                  {!isBhavanScopeRestricted && (
+                    <option value="college-wide">College-wide (All Hostels)</option>
+                  )}
                   {bhavans.map(b => (
                     <option key={b.id} value={b.id}>{b.name}</option>
                   ))}

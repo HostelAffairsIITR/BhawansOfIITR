@@ -1,4 +1,7 @@
+'use client'
+import { useState } from 'react'
 import { getBhavanBySlug } from '@/lib/bhavans-data'
+import ShareModal from '@/components/events/ShareModal'
 
 export interface DbContentItem {
   id: string
@@ -32,16 +35,23 @@ export interface DbContentItem {
     option_text: string
     display_order: number
   }[] | null
+  users?: {
+    name: string
+  } | null
 }
 
 const cardBase = 'flex flex-col w-full h-[500px] rounded-xl border border-border bg-surface-raised shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:border-border-strong'
 
 export function PollCard({ 
   item, 
-  votes 
+  votes,
+  onShare,
+  theme
 }: { 
   item: DbContentItem
   votes: { poll_option_id: string; content_item_id: string; vote_count?: number }[]
+  onShare?: (item: DbContentItem) => void
+  theme?: { primary: string; primaryLight: string; primaryDark: string }
 }) {
   const pollVotes = votes ? votes.filter(v => v.content_item_id === item.id) : []
   const totalVotes = pollVotes.reduce((sum, v) => sum + (v.vote_count !== undefined ? v.vote_count : 1), 0)
@@ -56,18 +66,46 @@ export function PollCard({
   return (
     <article className={cardBase}>
       <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border shrink-0">
-        <span className="bg-accent/10 text-accent text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>POLL</span>
-        <span className={`text-[10px] font-bold tracking-wider ${item.status === 'open' ? 'text-accent' : 'text-text-muted'}`}
-          style={{ fontFamily: 'var(--font-mono)' }}>
+        <div className="flex items-center gap-2">
+          <span 
+            className={`text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase ${theme ? '' : 'bg-accent/10 text-accent'}`} 
+            style={theme ? { backgroundColor: `${theme.primary}15`, color: theme.primary, fontFamily: 'var(--font-mono)' } : { fontFamily: 'var(--font-mono)' }}
+          >
+            POLL
+          </span>
+          {onShare && (
+            <button 
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onShare(item); }}
+              className="text-text-muted hover:text-accent p-1 rounded-md hover:bg-surface transition-colors cursor-pointer"
+              style={theme ? { color: theme.primary } : undefined}
+              title="Share Poll"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3"/>
+                <circle cx="6" cy="12" r="3"/>
+                <circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+            </button>
+          )}
+        </div>
+        <span 
+          className={`text-[10px] font-bold tracking-wider ${theme ? '' : (item.status === 'open' ? 'text-accent' : 'text-text-muted')}`}
+          style={theme ? { color: theme.primary, fontFamily: 'var(--font-mono)' } : { fontFamily: 'var(--font-mono)' }}
+        >
           {item.status.toUpperCase()}
         </span>
       </div>
 
       <div className="bg-surface/40 p-5 flex-1 flex flex-col justify-between overflow-y-auto">
         <div>
-          <h3 className="text-text font-extrabold text-base leading-snug mb-4 line-clamp-2" style={{ fontFamily: 'var(--font-sans)' }}>
+          <h3 className="text-text font-extrabold text-base leading-snug mb-1 line-clamp-2" style={{ fontFamily: 'var(--font-sans)' }}>
             {item.title}
           </h3>
+          <p className="text-[10px] text-text-muted font-semibold tracking-wider uppercase mb-3" style={{ fontFamily: 'var(--font-sans)' }}>
+            By: {item.users?.name ?? 'IITR Hostel Council'}
+          </p>
           <div className="flex flex-col gap-2.5">
             {sortedOptions.slice(0, 3).map(opt => {
               const optionVotes = pollVotes
@@ -76,13 +114,27 @@ export function PollCard({
               const pct = totalVotes > 0 ? Math.round((optionVotes / totalVotes) * 100) : 0
               return (
                 <div key={opt.id} className={`bg-surface border border-border/60 rounded-xl ${optionPadding} flex flex-col gap-1.5 relative overflow-hidden`}>
-                  <div className="absolute inset-y-0 left-0 bg-accent/5 transition-all duration-500" style={{ width: `${pct}%` }} />
+                  <div 
+                    className={`absolute inset-y-0 left-0 transition-all duration-500 ${theme ? '' : 'bg-accent/5'}`} 
+                    style={{ 
+                      width: `${pct}%`, 
+                      backgroundColor: theme ? `${theme.primary}15` : undefined 
+                    }} 
+                  />
                   <div className="flex items-center justify-between text-[11px] relative z-10 font-bold">
                     <span className="text-text leading-snug truncate max-w-[200px]">{opt.option_text}</span>
-                    <span className="text-accent shrink-0 ml-2">{pct}%</span>
+                    <span 
+                      className={`shrink-0 ml-2 ${theme ? '' : 'text-accent'}`}
+                      style={theme ? { color: theme.primary } : undefined}
+                    >
+                      {pct}%
+                    </span>
                   </div>
                   <div className={`w-full ${progressHeight} rounded-full bg-surface-muted relative overflow-hidden z-10`}>
-                    <div className="absolute inset-y-0 left-0 bg-accent rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                    <div 
+                      className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${theme ? '' : 'bg-accent'}`} 
+                      style={{ width: `${pct}%`, backgroundColor: theme?.primary }} 
+                    />
                   </div>
                 </div>
               )
@@ -93,7 +145,11 @@ export function PollCard({
       </div>
 
       <div className="p-4 border-t border-border mt-auto bg-surface-raised w-full">
-        <a href={`/events/${item.id}`} className="btn-primary w-full py-3 text-xs font-bold tracking-widest text-center block rounded-xl uppercase">
+        <a 
+          href={`/events/${item.id}`} 
+          style={theme ? { backgroundColor: theme.primary } : undefined}
+          className="btn-primary w-full py-3 text-xs font-bold tracking-widest text-center block rounded-xl uppercase"
+        >
           VOTE NOW
         </a>
       </div>
@@ -101,7 +157,15 @@ export function PollCard({
   )
 }
 
-export function BlogCard({ item }: { item: DbContentItem }) {
+export function BlogCard({ 
+  item,
+  onShare,
+  theme
+}: { 
+  item: DbContentItem
+  onShare?: (item: DbContentItem) => void
+  theme?: { primary: string; primaryLight: string; primaryDark: string }
+}) {
   const blogs = Array.isArray(item.blogs) ? item.blogs[0] : item.blogs
   const coverImageUrl = blogs?.cover_image_url
   const excerpt = blogs?.excerpt || ''
@@ -109,7 +173,30 @@ export function BlogCard({ item }: { item: DbContentItem }) {
   return (
     <article className={cardBase}>
       <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border shrink-0">
-        <span className="bg-brand/10 text-brand text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>BLOG</span>
+        <div className="flex items-center gap-2">
+          <span 
+            className={`text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase ${theme ? '' : 'bg-brand/10 text-brand'}`} 
+            style={theme ? { backgroundColor: `${theme.primary}15`, color: theme.primary, fontFamily: 'var(--font-mono)' } : { fontFamily: 'var(--font-mono)' }}
+          >
+            BLOG
+          </span>
+          {onShare && (
+            <button 
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onShare(item); }}
+              className="text-text-muted hover:text-brand p-1 rounded-md hover:bg-surface transition-colors cursor-pointer"
+              style={theme ? { color: theme.primary } : undefined}
+              title="Share Blog"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3"/>
+                <circle cx="6" cy="12" r="3"/>
+                <circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+            </button>
+          )}
+        </div>
         <span className="text-[10px] text-text-muted tracking-wider" style={{ fontFamily: 'var(--font-mono)' }}>
           {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()}
         </span>
@@ -120,16 +207,22 @@ export function BlogCard({ item }: { item: DbContentItem }) {
           <img src={coverImageUrl} alt={item.title} className="w-full h-full object-cover" />
         </div>
       ) : (
-        <div className="border-b border-border bg-gradient-to-br from-brand-light to-brand-muted h-48 shrink-0 flex items-center justify-center text-text-on-brand/30 text-xs font-mono">
+        <div 
+          className={`border-b border-border h-48 shrink-0 flex items-center justify-center text-text-on-brand/30 text-xs font-mono ${theme ? '' : 'bg-gradient-to-br from-brand-light to-brand-muted'}`}
+          style={theme ? { background: `linear-gradient(135deg, ${theme.primaryLight}, ${theme.primary}20)` } : undefined}
+        >
           [ COVER IMAGE ]
         </div>
       )}
 
       <div className="p-5 flex flex-col gap-2 flex-1 justify-between overflow-y-auto">
         <div>
-          <h3 className="text-text font-extrabold text-base leading-snug mb-2 line-clamp-2" style={{ fontFamily: 'var(--font-sans)' }}>
+          <h3 className="text-text font-extrabold text-base leading-snug mb-1 line-clamp-2" style={{ fontFamily: 'var(--font-sans)' }}>
             {item.title}
           </h3>
+          <p className="text-[10px] text-text-muted font-semibold tracking-wider uppercase mb-3" style={{ fontFamily: 'var(--font-sans)' }}>
+            By: {item.users?.name ?? 'IITR Hostel Council'}
+          </p>
           <p className="text-text-muted text-sm leading-relaxed line-clamp-3">
             {excerpt}
           </p>
@@ -137,7 +230,11 @@ export function BlogCard({ item }: { item: DbContentItem }) {
       </div>
 
       <div className="p-4 border-t border-border mt-auto bg-surface-raised w-full">
-        <a href={`/events/${item.id}`} className="btn-primary w-full py-3 text-xs font-bold tracking-widest text-center block rounded-xl uppercase">
+        <a 
+          href={`/events/${item.id}`} 
+          style={theme ? { backgroundColor: theme.primary } : undefined}
+          className="btn-primary w-full py-3 text-xs font-bold tracking-widest text-center block rounded-xl uppercase"
+        >
           READ MORE
         </a>
       </div>
@@ -145,7 +242,15 @@ export function BlogCard({ item }: { item: DbContentItem }) {
   )
 }
 
-export function AnnouncementCard({ item }: { item: DbContentItem }) {
+export function AnnouncementCard({ 
+  item,
+  onShare,
+  theme
+}: { 
+  item: DbContentItem
+  onShare?: (item: DbContentItem) => void
+  theme?: { primary: string; primaryLight: string; primaryDark: string }
+}) {
   const announcements = Array.isArray(item.announcements) ? item.announcements[0] : item.announcements
   const imageUrl = announcements?.image_url
   const body = announcements?.body || ''
@@ -153,7 +258,30 @@ export function AnnouncementCard({ item }: { item: DbContentItem }) {
   return (
     <article className={cardBase}>
       <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border shrink-0">
-        <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>ANNOUNCEMENT</span>
+        <div className="flex items-center gap-2">
+          <span 
+            className={`text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase ${theme ? '' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'}`} 
+            style={theme ? { backgroundColor: `${theme.primary}15`, color: theme.primary, fontFamily: 'var(--font-mono)' } : { fontFamily: 'var(--font-mono)' }}
+          >
+            ANNOUNCEMENT
+          </span>
+          {onShare && (
+            <button 
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onShare(item); }}
+              className="text-text-muted hover:text-blue-600 dark:hover:text-blue-400 p-1 rounded-md hover:bg-surface transition-colors cursor-pointer"
+              style={theme ? { color: theme.primary } : undefined}
+              title="Share Announcement"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3"/>
+                <circle cx="6" cy="12" r="3"/>
+                <circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+            </button>
+          )}
+        </div>
         <span className="text-[10px] text-text-muted tracking-wider" style={{ fontFamily: 'var(--font-mono)' }}>
           {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()}
         </span>
@@ -164,16 +292,22 @@ export function AnnouncementCard({ item }: { item: DbContentItem }) {
           <img src={imageUrl} alt={item.title} className="w-full h-full object-cover" />
         </div>
       ) : (
-        <div className="border-b border-border bg-gradient-to-br from-blue-400/20 to-blue-600/20 h-48 shrink-0 flex items-center justify-center text-blue-600/30 text-xs font-mono">
+        <div 
+          className={`border-b border-border h-48 shrink-0 flex items-center justify-center text-xs font-mono ${theme ? '' : 'bg-gradient-to-br from-blue-400/20 to-blue-600/20 text-blue-600/30'}`}
+          style={theme ? { background: `linear-gradient(135deg, ${theme.primaryLight}, ${theme.primary}20)`, color: `${theme.primary}50` } : undefined}
+        >
           [ ANNOUNCEMENT ]
         </div>
       )}
 
       <div className="p-5 flex flex-col gap-2 flex-1 justify-between overflow-y-auto">
         <div>
-          <h3 className="text-text font-extrabold text-base leading-snug mb-2 line-clamp-2" style={{ fontFamily: 'var(--font-sans)' }}>
+          <h3 className="text-text font-extrabold text-base leading-snug mb-1 line-clamp-2" style={{ fontFamily: 'var(--font-sans)' }}>
             {item.title}
           </h3>
+          <p className="text-[10px] text-text-muted font-semibold tracking-wider uppercase mb-3" style={{ fontFamily: 'var(--font-sans)' }}>
+            By: {item.users?.name ?? 'IITR Hostel Council'}
+          </p>
           <p className="text-text-muted text-sm leading-relaxed line-clamp-3">
             {body}
           </p>
@@ -181,7 +315,11 @@ export function AnnouncementCard({ item }: { item: DbContentItem }) {
       </div>
 
       <div className="p-4 border-t border-border mt-auto bg-surface-raised w-full">
-        <a href={`/events/${item.id}`} className="btn-primary w-full py-3 text-xs font-bold tracking-widest text-center block rounded-xl uppercase">
+        <a 
+          href={`/events/${item.id}`} 
+          style={theme ? { backgroundColor: theme.primary } : undefined}
+          className="btn-primary w-full py-3 text-xs font-bold tracking-widest text-center block rounded-xl uppercase"
+        >
           VIEW
         </a>
       </div>
@@ -210,9 +348,12 @@ export function NoticeCard({ item }: { item: DbContentItem }) {
               🏢 {bhavanName.replace(' Bhawan', '').replace(' Hostel', '')}
             </span>
           )}
-          <h3 className="text-text font-extrabold text-base leading-snug mb-2 line-clamp-2" style={{ fontFamily: 'var(--font-sans)' }}>
+          <h3 className="text-text font-extrabold text-base leading-snug mb-1 line-clamp-2" style={{ fontFamily: 'var(--font-sans)' }}>
             {item.title}
           </h3>
+          <p className="text-[10px] text-text-muted font-semibold tracking-wider uppercase mb-3" style={{ fontFamily: 'var(--font-sans)' }}>
+            By: {item.users?.name ?? 'IITR Hostel Council'}
+          </p>
           <p className="text-text-muted text-sm leading-relaxed line-clamp-4">
             {body}
           </p>
@@ -235,6 +376,17 @@ export default function EventsSection({
   events: DbContentItem[]
   votes?: { poll_option_id: string; content_item_id: string }[] 
 }) {
+  const [activeShareItem, setActiveShareItem] = useState<DbContentItem | null>(null)
+
+  const handleShare = (item: DbContentItem) => {
+    setActiveShareItem(item)
+  }
+
+  // Find bhavan data if event is scoped
+  const selectedBhavan = activeShareItem?.bhavan_scope 
+    ? getBhavanBySlug(activeShareItem.bhavan_scope)
+    : undefined
+
   return (
     <section id="whats-happening" className="py-14 sm:py-20 bg-surface-raised border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -269,9 +421,9 @@ export default function EventsSection({
                   key={event.id}
                   className="snap-start flex w-[85vw] sm:w-[360px] flex-shrink-0"
                 >
-                  {event.type === 'poll' && <PollCard item={event} votes={votes} />}
-                  {event.type === 'blog' && <BlogCard item={event} />}
-                  {event.type === 'announcement' && <AnnouncementCard item={event} />}
+                  {event.type === 'poll' && <PollCard item={event} votes={votes} onShare={handleShare} />}
+                  {event.type === 'blog' && <BlogCard item={event} onShare={handleShare} />}
+                  {event.type === 'announcement' && <AnnouncementCard item={event} onShare={handleShare} />}
                 </div>
               ))}
               <div className="flex-shrink-0 w-4" aria-hidden="true" />
@@ -280,6 +432,15 @@ export default function EventsSection({
           </div>
         )}
       </div>
+
+      {activeShareItem && (
+        <ShareModal 
+          isOpen={!!activeShareItem} 
+          onClose={() => setActiveShareItem(null)} 
+          item={activeShareItem}
+          bhavan={selectedBhavan}
+        />
+      )}
     </section>
   )
 }

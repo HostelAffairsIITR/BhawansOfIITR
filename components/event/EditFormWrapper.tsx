@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { compressImage } from '@/lib/utils/compress-image'
@@ -25,12 +25,56 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
+  // Restricted scope states
+  const [filteredBhavans, setFilteredBhavans] = useState<any[]>(bhavans)
+  const [isBhavanScopeRestricted, setIsBhavanScopeRestricted] = useState(false)
+  const [allowedBhavanIds, setAllowedBhavanIds] = useState<number[] | null>(null)
+
   // Shared form fields
   const [title, setTitle] = useState(item.title || '')
   const [bhavanScope, setBhavanScope] = useState<string>(
     item.bhavan_scope ? item.bhavan_scope.toString() : 'college-wide'
   )
   const [allowsComments, setAllowsComments] = useState(!!item.allows_comments)
+
+  useEffect(() => {
+    async function checkUserScope() {
+      try {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('is_super_admin')
+          .eq('id', userId)
+          .maybeSingle()
+
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('role, bhavan_id')
+          .eq('user_id', userId)
+
+        const isSuperAdmin = profile?.is_super_admin || false
+        const userBhavanIds = roles
+          ? roles.map(r => r.bhavan_id).filter((id): id is number => id !== null)
+          : []
+        const hasGlobalScope = isSuperAdmin || (roles ? roles.some(r => r.bhavan_id === null) : false)
+
+        if (!hasGlobalScope && userBhavanIds.length > 0) {
+          const allowedIds = Array.from(new Set(userBhavanIds))
+          setIsBhavanScopeRestricted(true)
+          setAllowedBhavanIds(allowedIds)
+          const filtered = bhavans.filter(b => allowedIds.includes(b.id))
+          setFilteredBhavans(filtered)
+          
+          const currentScopeNum = item.bhavan_scope ? parseInt(item.bhavan_scope.toString()) : null
+          if (!currentScopeNum || !allowedIds.includes(currentScopeNum)) {
+            setBhavanScope(allowedIds[0].toString())
+          }
+        }
+      } catch (err) {
+        console.error('Failed to check user scope in EditFormWrapper:', err)
+      }
+    }
+    checkUserScope()
+  }, [userId, bhavans, item.bhavan_scope])
 
   // 1. Poll specific state
   const sortedInitialOptions = item.poll_options
@@ -817,12 +861,13 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
               <select
                 value={bhavanScope}
                 onChange={(e) => setBhavanScope(e.target.value)}
-                className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-text"
+                disabled={isBhavanScopeRestricted && allowedBhavanIds?.length === 1}
+                className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-text disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {item.type !== 'notice' && (
+                {item.type !== 'notice' && !isBhavanScopeRestricted && (
                   <option value="college-wide">College-wide (All Hostels)</option>
                 )}
-                {bhavans.map(b => (
+                {filteredBhavans.map(b => (
                   <option key={b.id} value={b.id}>{b.name}</option>
                 ))}
               </select>

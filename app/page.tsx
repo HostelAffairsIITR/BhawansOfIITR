@@ -47,9 +47,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           blogs(*),
           announcements(*),
           notices(*),
-          poll_options(*)
+          poll_options(*),
+          users(name)
         `)
         .eq('status', 'published')
+        .is('bhavan_scope', null)
         .neq('type', 'notice')
         .order('priority', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false })

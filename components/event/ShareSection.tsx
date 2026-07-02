@@ -1,8 +1,16 @@
 'use client'
 import { useState, useEffect } from 'react'
+import ShareModal from '@/components/events/ShareModal'
 
-export default function ShareSection({ title }: { title: string }) {
+export default function ShareSection({ 
+  item, 
+  bhavan 
+}: { 
+  item: any
+  bhavan: any 
+}) {
   const [shareUrl, setShareUrl] = useState('')
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -10,22 +18,32 @@ export default function ShareSection({ title }: { title: string }) {
     }
   }, [])
 
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(shareUrl)}`
-  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${title} - ${shareUrl}`)}`
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(item.title)}&url=${encodeURIComponent(shareUrl)}`
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${item.title} - ${shareUrl}`)}`
 
   return (
     <div className="flex flex-wrap items-center gap-4 border-t border-border pt-8 mt-8">
-      <span className="text-xs font-extrabold uppercase tracking-wider text-text-muted" style={{ fontFamily: 'var(--font-mono)' }}>
+      <span className="text-xs font-extrabold uppercase tracking-wider text-text-muted animate-pulse" style={{ fontFamily: 'var(--font-mono)' }}>
         SHARE THIS EVENT:
       </span>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Share As Image Button */}
+        <button
+          onClick={() => setIsShareModalOpen(true)}
+          className="inline-flex items-center gap-2 border border-brand bg-brand/5 hover:bg-brand/10 text-brand font-bold text-xs px-4.5 py-2.5 rounded-xl transition-all duration-150 shadow-xs cursor-pointer"
+          style={{ fontFamily: 'var(--font-sans)' }}
+        >
+          <span>🎨</span>
+          SHARE AS IMAGE
+        </button>
+
         {/* Twitter / X */}
         <a
           href={twitterUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 border border-border bg-surface hover:bg-surface-muted hover:border-border-strong text-text font-bold text-xs px-4 py-2 rounded-xl transition-all duration-150 shadow-xs"
+          className="inline-flex items-center gap-2 border border-border bg-surface hover:bg-surface-muted hover:border-border-strong text-text font-bold text-xs px-4 py-2.5 rounded-xl transition-all duration-150 shadow-xs"
           style={{ fontFamily: 'var(--font-sans)' }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -40,7 +58,7 @@ export default function ShareSection({ title }: { title: string }) {
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 border border-border bg-surface hover:bg-surface-muted hover:border-border-strong text-text font-bold text-xs px-4 py-2 rounded-xl transition-all duration-150 shadow-xs"
+          className="inline-flex items-center gap-2 border border-border bg-surface hover:bg-surface-muted hover:border-border-strong text-text font-bold text-xs px-4 py-2.5 rounded-xl transition-all duration-150 shadow-xs"
           style={{ fontFamily: 'var(--font-sans)' }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -49,6 +67,15 @@ export default function ShareSection({ title }: { title: string }) {
           WHATSAPP
         </a>
       </div>
+
+      {isShareModalOpen && (
+        <ShareModal 
+          isOpen={isShareModalOpen} 
+          onClose={() => setIsShareModalOpen(false)} 
+          item={item}
+          bhavan={bhavan}
+        />
+      )}
     </div>
   )
 }

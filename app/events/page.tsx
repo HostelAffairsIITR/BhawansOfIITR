@@ -2,13 +2,8 @@ import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/server'
-import { 
-  PollCard, 
-  BlogCard, 
-  AnnouncementCard, 
-  NoticeCard, 
-  DbContentItem 
-} from '@/components/home/EventsSection'
+import EventsGrid from '@/components/events/EventsGrid'
+import { DbContentItem } from '@/components/home/EventsSection'
 
 interface EventsPageProps {
   searchParams: Promise<{ type?: string; status?: string }>
@@ -25,8 +20,9 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   // Build content items query
   let query = supabase
     .from('content_items')
-    .select('*, blogs(*), announcements(*), notices(*), poll_options(*)')
+    .select('*, blogs(*), announcements(*), notices(*), poll_options(*), users(name)')
     .eq('status', activeStatus)
+    .is('bhavan_scope', null)
     .neq('type', 'notice')
 
   if (activeType !== 'all') {
@@ -143,15 +139,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
               <p className="text-text-muted text-sm" style={{ fontFamily: 'var(--font-sans)' }}>No published content matches the selected filters.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 mt-8 sm:mt-16 mb-16 sm:mb-24">
-              {events.map(event => (
-                <div key={event.id} className="flex">
-                  {event.type === 'poll' && <PollCard item={event} votes={votes} />}
-                  {event.type === 'blog' && <BlogCard item={event} />}
-                  {event.type === 'announcement' && <AnnouncementCard item={event} />}
-                </div>
-              ))}
-            </div>
+            <EventsGrid events={events} votes={votes} showShare={activeStatusParam === 'active'} />
           )}
         </section>
       </main>

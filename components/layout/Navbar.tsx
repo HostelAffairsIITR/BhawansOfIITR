@@ -18,6 +18,7 @@ export default function Navbar() {
   const [userName, setUserName] = useState('')
   const [hasRole, setHasRole] = useState(false)
   const [hasPermission, setHasPermission] = useState(false)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const supabase = createClient()
 
@@ -30,12 +31,14 @@ export default function Navbar() {
         try {
           const { data: profile } = await supabase
             .from('users')
-            .select('name')
+            .select('name, is_super_admin')
             .eq('id', currentUser.id)
             .single()
           setUserName(profile?.name || currentUser.email || 'User')
+          setIsSuperAdmin(profile?.is_super_admin || false)
         } catch {
           setUserName(currentUser.email || 'User')
+          setIsSuperAdmin(false)
         }
 
         // Check user_roles
@@ -74,6 +77,7 @@ export default function Navbar() {
         setUserName('')
         setHasRole(false)
         setHasPermission(false)
+        setIsSuperAdmin(false)
       }
     })
 
@@ -106,7 +110,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2">
           {/* Dashboard button for managers/volunteers */}
-          {user && (hasRole || hasPermission) && (
+          {user && (isSuperAdmin || hasRole || hasPermission) && (
             <Link 
               href="/dashboard" 
               className="hidden sm:inline-flex bg-brand-light hover:bg-brand-muted text-text-on-brand text-xs font-bold px-3 py-2 rounded-lg tracking-wider uppercase transition-colors" 
@@ -362,7 +366,7 @@ export default function Navbar() {
             {/* Mobile Auth Actions */}
             {user ? (
               <>
-                {user && (hasRole || hasPermission) && (
+                {user && (isSuperAdmin || hasRole || hasPermission) && (
                   <li className="border-b border-text-on-brand/10 bg-brand-light/10">
                     <Link
                       href="/dashboard"

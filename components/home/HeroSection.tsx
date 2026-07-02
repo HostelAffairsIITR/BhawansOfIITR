@@ -7,25 +7,11 @@ export default function HeroSection() {
       <div className="flex flex-col md:flex-row min-h-[55vh] md:min-h-[70vh]">
         {/* Left — Image */}
         <div className="relative w-full md:w-1/2 min-h-[40vh] md:min-h-0 border-b md:border-b-0 md:border-r border-border bg-gray-100 overflow-hidden">
-          {/* Replace src with real campus image */}
-          <div className="absolute inset-0 bg-black/10 flex items-end p-6 z-10">
-            <div className="rounded-md bg-brand/90 backdrop-blur-sm px-4 py-2">
-              <span className="text-text-on-brand text-sm tracking-[0.15em]" style={{ fontFamily: 'var(--font-mono)' }}>
-                IIT ROORKEE — EST. 1847
-              </span>
-            </div>
-          </div>
-          {/* Corner brackets */}
-          <div className="absolute top-4 left-4 w-8 h-8 border-l-4 border-t-4 border-white z-20" />
-          <div className="absolute top-4 right-4 w-8 h-8 border-r-4 border-t-4 border-white z-20" />
-          <div className="absolute bottom-16 left-4 w-8 h-8 border-l-4 border-b-4 border-white z-20" />
-          <div className="absolute bottom-16 right-4 w-8 h-8 border-r-4 border-b-4 border-white z-20" />
-          {/* Placeholder — swap with: <Image src="/images/campus-hero.jpg" alt="IIT Roorkee Campus" fill className="object-cover" priority /> */}
-          <div className="w-full h-full bg-gradient-to-br from-neutral-800 via-neutral-700 to-neutral-900 flex items-center justify-center">
-            <span className="text-white/20 text-xs font-mono text-center px-8">
-              [ CAMPUS PHOTOGRAPH ]<br/>Replace with real image
-            </span>
-          </div>
+          <img 
+            src="/images/campus-hero.webp" 
+            alt="IIT Roorkee Campus" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
         </div>
 
         {/* Right — Text */}

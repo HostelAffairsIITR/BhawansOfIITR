@@ -3,13 +3,56 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/server'
 import ReactMarkdown from 'react-markdown'
-import { getBhavanBySlug } from '@/lib/bhavans-data'
+import { getBhavanBySlug, BHAVANS } from '@/lib/bhavans-data'
 import PollVoting from '@/components/events/PollVoting'
 import CommentsSection from '@/components/events/CommentsSection'
 import ShareSection from '@/components/event/ShareSection'
 
+import { Metadata } from 'next'
+
 interface EventDetailPageProps {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: EventDetailPageProps): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+
+  const { data: item } = await supabase
+    .from('content_items')
+    .select('title, type')
+    .eq('id', id)
+    .single()
+
+  if (!item || item.type === 'notice') {
+    return {
+      title: 'IITR Hostel Council'
+    }
+  }
+
+  const imageUrl = `/api/events/${id}/og`
+
+  return {
+    title: `${item.title} | IITR Hostel Council`,
+    openGraph: {
+      title: item.title,
+      description: `View this ${item.type} on the IITR Bhavans portal.`,
+      images: [
+        {
+          url: imageUrl,
+          width: 1080,
+          height: 1080,
+          alt: item.title
+        }
+      ],
+      type: 'article'
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: item.title,
+      images: [imageUrl]
+    }
+  }
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
@@ -78,7 +121,9 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   }
 
   // 5. Fetch bhavan name if scoped notice
-  let bhavanName = null
+  let bhavanName: string | null = null
+  let bhavanRestrictionMessage: string | null = null
+  let selectedBhavan: any = null
   if (item.bhavan_scope) {
     const { data: bhavanData } = await supabase
       .from('bhavans')
@@ -88,6 +133,21 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     
     // Fall back to lookup from static data if ID matches index mapping
     bhavanName = bhavanData?.name || getBhavanBySlug(String(item.bhavan_scope))?.name || item.bhavan_scope
+    selectedBhavan = BHAVANS.find(b => b.name === bhavanName || b.slug === String(item.bhavan_scope))
+
+    // Check voting/access restrictions for bhavan-scoped polls
+    if (currentUserId && item.type === 'poll') {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('bhavan_id')
+        .eq('id', currentUserId)
+        .maybeSingle()
+      
+      const userBhavanId = userData?.bhavan_id || null
+      if (userBhavanId !== item.bhavan_scope) {
+        bhavanRestrictionMessage = `This poll is only open to ${bhavanName} residents`
+      }
+    }
   }
 
   // Resolve author (from permissions / fallback)
@@ -119,7 +179,13 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <div>
                 <span className="inline-block bg-accent/10 text-accent text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase mb-4" style={{ fontFamily: 'var(--font-mono)' }}>POLL</span>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-text mb-6" style={{ fontFamily: 'var(--font-sans)' }}>{item.title}</h1>
-                <PollVoting itemId={id} options={item.poll_options || []} initialVotes={votes} currentUserId={currentUserId} />
+                <PollVoting 
+                  itemId={id} 
+                  options={item.poll_options || []} 
+                  initialVotes={votes} 
+                  currentUserId={currentUserId} 
+                  bhavanRestrictionMessage={bhavanRestrictionMessage} 
+                />
               </div>
             )}
 
@@ -204,8 +270,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           </div>
 
           {/* Share Buttons */}
-          {item.allows_share && (
-            <ShareSection title={item.title} />
+          {item.allows_share && item.type !== 'notice' && (
+            <ShareSection item={item} bhavan={selectedBhavan} />
           )}
 
           {/* Comments Section */}
