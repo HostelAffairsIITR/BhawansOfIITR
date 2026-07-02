@@ -122,84 +122,73 @@ export default function Navbar() {
 
           {/* Dev Login/Logout Buttons (Development Only) */}
           {process.env.NODE_ENV === 'development' && (
-            user ? (
-              <button
-                onClick={async () => {
-                  await supabase.auth.signOut()
-                  window.location.reload()
-                }}
-                className="border border-text-on-brand/30 text-text-on-brand/60 hover:text-text-on-brand hover:border-text-on-brand text-[10px] font-bold px-2.5 py-1.5 rounded-lg tracking-wider uppercase transition-all duration-150 cursor-pointer shrink-0"
-                style={{ fontFamily: 'var(--font-mono)' }}
-              >
-                Dev Logout
-              </button>
-            ) : (
-              <button
-                onClick={async () => {
-                  const { error } = await supabase.auth.signInWithPassword({
-                    
-                    email: process.env.NEXT_PUBLIC_DEV_EMAIL!,
-                    password: process.env.NEXT_PUBLIC_DEV_PASSWORD!
-                  })
-                  if (error) {
-                    alert('Dev Login failed: ' + error.message)
-                  } else {
+            <div className="hidden sm:block">
+              {user ? (
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut()
                     window.location.reload()
-                  }
-                }}
-                className="border border-text-on-brand/30 text-text-on-brand/60 hover:text-text-on-brand hover:border-text-on-brand text-[10px] font-bold px-2.5 py-1.5 rounded-lg tracking-wider uppercase transition-all duration-150 cursor-pointer shrink-0"
-                style={{ fontFamily: 'var(--font-mono)' }}
-              >
-                Dev Login
-              </button>
-            )
+                  }}
+                  className="border border-text-on-brand/30 text-text-on-brand/60 hover:text-text-on-brand hover:border-text-on-brand text-[10px] font-bold px-2.5 py-1.5 rounded-lg tracking-wider uppercase transition-all duration-150 cursor-pointer shrink-0"
+                  style={{ fontFamily: 'var(--font-mono)' }}
+                >
+                  Dev Logout
+                </button>
+              ) : (
+                <button
+                  onClick={async () => {
+                    const { error } = await supabase.auth.signInWithPassword({
+                      email: process.env.NEXT_PUBLIC_DEV_EMAIL!,
+                      password: process.env.NEXT_PUBLIC_DEV_PASSWORD!
+                    })
+                    if (error) {
+                      alert('Dev Login failed: ' + error.message)
+                    } else {
+                      window.location.reload()
+                    }
+                  }}
+                  className="border border-text-on-brand/30 text-text-on-brand/60 hover:text-text-on-brand hover:border-text-on-brand text-[10px] font-bold px-2.5 py-1.5 rounded-lg tracking-wider uppercase transition-all duration-150 cursor-pointer shrink-0"
+                  style={{ fontFamily: 'var(--font-mono)' }}
+                >
+                  Dev Login
+                </button>
+              )}
+            </div>
           )}
 
           {/* User profile dropdown or Login button */}
-          {user ? (
-            <div className="relative group">
-              <button 
-                className="flex items-center gap-1.5 h-10 px-3 rounded-lg text-text-on-brand/80 hover:text-text-on-brand hover:bg-brand-light transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer"
-                style={{ fontFamily: 'var(--font-sans)' }}
-              >
-                <span className="max-w-[80px] sm:max-w-[120px] truncate">{userName.split(' ')[0]}</span>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="opacity-70">
-                  <path d="M6 9l6 6 6-6"/>
-                </svg>
-              </button>
-              <div className="absolute right-0 top-full hidden group-hover:block w-40 bg-surface-raised border border-border text-text shadow-lg rounded-xl py-1.5 z-50 mt-0.5">
+          <div className="hidden sm:block">
+            {user ? (
+              <div className="relative group">
                 <button 
-                  onClick={handleLogout} 
-                  className="w-full text-left px-4 py-2 text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 h-10 px-3 rounded-lg text-text-on-brand/80 hover:text-text-on-brand hover:bg-brand-light transition-colors text-xs font-bold uppercase tracking-wider cursor-pointer"
                   style={{ fontFamily: 'var(--font-sans)' }}
                 >
-                  Logout
+                  <span className="max-w-[80px] sm:max-w-[120px] truncate">{userName.split(' ')[0]}</span>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="opacity-70">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
                 </button>
+                <div className="absolute right-0 top-full hidden group-hover:block w-40 bg-surface-raised border border-border text-text shadow-lg rounded-xl py-1.5 z-50 mt-0.5">
+                  <button 
+                    onClick={handleLogout} 
+                    className="w-full text-left px-4 py-2 text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted transition-colors cursor-pointer"
+                    style={{ fontFamily: 'var(--font-sans)' }}
+                  >
+                    Logout
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <button 
-              onClick={() => setShowLoginModal(true)} 
-              className="bg-brand-light hover:bg-brand-muted text-text-on-brand text-xs font-bold px-4 py-2 rounded-lg tracking-wider uppercase transition-colors cursor-pointer" 
-              style={{ fontFamily: 'var(--font-sans)' }}
-            >
-              Login
-            </button>
-          )}
-
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-text-on-brand/80 hover:text-text-on-brand hover:bg-brand-light transition-colors duration-150"
-            aria-label="Instagram"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5"/>
-              <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
-            </svg>
-          </a>
+            ) : (
+              <button 
+                onClick={() => setShowLoginModal(true)} 
+                className="bg-brand-light hover:bg-brand-muted text-text-on-brand text-xs font-bold px-4 py-2 rounded-lg tracking-wider uppercase transition-colors cursor-pointer" 
+                style={{ fontFamily: 'var(--font-sans)' }}
+              >
+                Login
+              </button>
+            )}
+          </div>
 
           <button
             className="sm:hidden w-10 h-10 rounded-lg flex items-center justify-center text-text-on-brand hover:bg-brand-light ml-1"
