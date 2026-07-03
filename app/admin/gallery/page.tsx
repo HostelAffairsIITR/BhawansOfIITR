@@ -12,18 +12,18 @@ function sanitizeFilename(filename: string): string {
 
 interface GalleryImage {
   id: number
-  scope: 'main' | 'bhavan'
+  scope: 'main' | 'bhawan'
   bhavan_id: number | null
   image_url: string
   caption: string | null
   display_order: number
   uploaded_by: string | null
-  bhavans?: {
+  bhawans?: {
     name: string
   } | null
 }
 
-interface Bhavan {
+interface Bhawan {
   id: number
   name: string
 }
@@ -33,13 +33,13 @@ export default function AdminGalleryPage() {
 
   // State
   const [images, setImages] = useState<GalleryImage[]>([])
-  const [bhavans, setBhavans] = useState<Bhavan[]>([])
+  const [bhawans, setBhawans] = useState<Bhawan[]>([])
   const [loading, setLoading] = useState(true)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   // Filters / Tabs
-  const [activeTab, setActiveTab] = useState<'main' | 'bhavan'>('main')
-  const [selectedBhavanId, setSelectedBhavanId] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<'main' | 'bhawan'>('main')
+  const [selectedBhawanId, setSelectedBhawanId] = useState<string>('')
 
   // Form State
   const [newImageFile, setNewImageFile] = useState<File | null>(null)
@@ -60,23 +60,23 @@ export default function AdminGalleryPage() {
       // 2. Fetch gallery
       const { data: galleryData, error: galleryError } = await supabase
         .from('gallery_images')
-        .select('*, bhavans(name)')
+        .select('*, bhawans(name)')
         .order('scope, bhavan_id, display_order')
 
       if (galleryError) throw galleryError
       if (galleryData) setImages(galleryData as GalleryImage[])
 
-      // 3. Fetch bhavans list
-      const { data: bhavansData, error: bhError } = await supabase
+      // 3. Fetch bhawans list
+      const { data: bhawansData, error: bhError } = await supabase
         .from('bhavans')
         .select('id, name')
         .order('name')
 
       if (bhError) throw bhError
-      if (bhavansData) {
-        setBhavans(bhavansData as Bhavan[])
-        if (bhavansData.length > 0) {
-          setSelectedBhavanId(bhavansData[0].id.toString())
+      if (bhawansData) {
+        setBhawans(bhawansData as Bhawan[])
+        if (bhawansData.length > 0) {
+          setSelectedBhawanId(bhawansData[0].id.toString())
         }
       }
     } catch (err) {
@@ -105,7 +105,7 @@ export default function AdminGalleryPage() {
     setErrorMsg('')
 
     const scope = activeTab
-    const selectedBhavan = scope === 'bhavan' ? parseInt(selectedBhavanId) : null
+    const selectedBhawan = scope === 'bhawan' ? parseInt(selectedBhawanId) : null
 
     try {
       const compressed = await compressImage(newImageFile)
@@ -126,7 +126,7 @@ export default function AdminGalleryPage() {
         .from('gallery_images')
         .insert({
           scope,
-          bhavan_id: selectedBhavan,
+          bhavan_id: selectedBhawan,
           image_url: publicUrl,
           caption: caption.trim() || null,
           display_order: 0,
@@ -220,7 +220,7 @@ export default function AdminGalleryPage() {
       const rest = prev.filter(img => 
         activeTab === 'main' 
           ? img.scope !== 'main' 
-          : (img.scope !== 'bhavan' || img.bhavan_id !== parseInt(selectedBhavanId))
+          : (img.scope !== 'bhawan' || img.bhavan_id !== parseInt(selectedBhawanId))
       )
       return [...rest, ...updatedSubset].sort((a, b) => a.display_order - b.display_order)
     })
@@ -246,7 +246,7 @@ export default function AdminGalleryPage() {
       if (activeTab === 'main') {
         return img.scope === 'main'
       } else {
-        return img.scope === 'bhavan' && img.bhavan_id === parseInt(selectedBhavanId)
+        return img.scope === 'bhawan' && img.bhavan_id === parseInt(selectedBhawanId)
       }
     })
     .sort((a, b) => a.display_order - b.display_order)
@@ -259,7 +259,7 @@ export default function AdminGalleryPage() {
           Gallery Management
         </h2>
         <p className="text-xs text-text-muted mt-1">
-          Upload and organize images displayed across the main page and individual Bhavan gallery sections.
+          Upload and organize images displayed across the main page and individual Bhawan gallery sections.
         </p>
       </div>
 
@@ -273,27 +273,27 @@ export default function AdminGalleryPage() {
           Main Page Gallery
         </button>
         <button
-          onClick={() => setActiveTab('bhavan')}
+          onClick={() => setActiveTab('bhawan')}
           className={`px-4 py-2 text-xs font-bold uppercase tracking-wider cursor-pointer border-b-2 transition-all
-            ${activeTab === 'bhavan' ? 'border-brand text-brand' : 'border-transparent text-text-muted hover:text-text'}`}
+            ${activeTab === 'bhawan' ? 'border-brand text-brand' : 'border-transparent text-text-muted hover:text-text'}`}
         >
-          Bhavan Galleries
+          Bhawan Galleries
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Grid display (Left Columns) */}
         <div className="lg:col-span-2 flex flex-col gap-4">
-          {/* Bhavan selector dropdown if Bhavan Galleries is active */}
-          {activeTab === 'bhavan' && (
+          {/* Bhawan selector dropdown if Bhawan Galleries is active */}
+          {activeTab === 'bhawan' && (
             <div className="flex items-center gap-2 border border-border bg-surface-raised p-4 rounded-xl max-w-sm">
-              <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Select Bhavan:</label>
+              <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Select Bhawan:</label>
               <select
-                value={selectedBhavanId}
-                onChange={(e) => setSelectedBhavanId(e.target.value)}
+                value={selectedBhawanId}
+                onChange={(e) => setSelectedBhawanId(e.target.value)}
                 className="text-xs p-2 rounded-lg border border-border bg-surface text-text flex-1"
               >
-                {bhavans.map(bh => (
+                {bhawans.map(bh => (
                   <option key={bh.id} value={bh.id}>{bh.name}</option>
                 ))}
               </select>
@@ -420,7 +420,7 @@ export default function AdminGalleryPage() {
               <div className="bg-surface/50 border border-border/60 p-3.5 rounded-xl">
                 <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-1">Target Gallery:</span>
                 <span className="text-xs font-bold text-brand uppercase tracking-wider">
-                  {activeTab === 'main' ? 'Main Landing Page' : `${bhavans.find(b => b.id === parseInt(selectedBhavanId))?.name || 'Selected Bhavan'}`}
+                  {activeTab === 'main' ? 'Main Landing Page' : `${bhawans.find(b => b.id === parseInt(selectedBhawanId))?.name || 'Selected Bhawan'}`}
                 </span>
               </div>
 

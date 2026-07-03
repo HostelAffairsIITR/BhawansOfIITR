@@ -1,10 +1,10 @@
 import Link from 'next/link'
 
-const FOOTER_LINKS = ['MAP', 'BHAVANS', 'EVENTS', 'ABOUT US', 'CONTACT']
+const FOOTER_LINKS = ['MAP', 'BHAWANS', 'EVENTS', 'ABOUT US', 'CONTACT']
 
 const LINK_MAP: Record<string, string> = {
   'MAP': '/#campus-map',
-  'BHAVANS': '/#our-bhavans',
+  'BHAWANS': '/#our-bhawans',
   'EVENTS': '/#whats-happening',
   'ABOUT US': '/about-us',
   'CONTACT': 'mailto:dosw@iitr.ac.in',
@@ -22,7 +22,7 @@ export default function Footer() {
                 <img src="/images/iitr-logo.png" alt="IITR Logo" className="w-full h-full object-contain" />
               </div>
               <span className="text-white text-2xl tracking-widest" style={{ fontFamily: 'var(--font-display)' }}>
-                BHAVANS OF IITR
+                BHAWANS OF IITR
               </span>
             </div>
             <p className="text-white/60 text-xs leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
@@ -65,7 +65,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row sm:justify-between gap-3 text-white/40 text-[11px] font-medium" style={{ fontFamily: 'var(--font-sans)' }}>
           <span>© {new Date().getFullYear()} IIT Roorkee. All rights reserved.</span>
-          <span>bhavans.iitr.ac.in</span>
+          <span>bhawans.iitr.ac.in</span>
         </div>
       </div>
     </footer>

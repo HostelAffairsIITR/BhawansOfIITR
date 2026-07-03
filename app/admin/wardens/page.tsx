@@ -18,12 +18,12 @@ interface Warden {
   bhavan_id: number | null
   is_active: boolean
   display_order: number
-  bhavans?: {
+  bhawans?: {
     name: string
   } | null
 }
 
-interface Bhavan {
+interface Bhawan {
   id: number
   name: string
 }
@@ -33,14 +33,14 @@ export default function AdminWardensPage() {
 
   // State
   const [wardens, setWardens] = useState<Warden[]>([])
-  const [bhavans, setBhavans] = useState<Bhavan[]>([])
+  const [bhawans, setBhawans] = useState<Bhawan[]>([])
   const [loading, setLoading] = useState(true)
   const [showInactive, setShowInactive] = useState(false)
 
   // Form State
   const [name, setName] = useState('')
   const [title, setTitle] = useState('')
-  const [bhavanId, setBhavanId] = useState('')
+  const [bhawanId, setBhawanId] = useState('')
   const [displayOrder, setDisplayOrder] = useState('0')
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [formSubmitting, setFormSubmitting] = useState(false)
@@ -59,20 +59,20 @@ export default function AdminWardensPage() {
       // 1. Fetch wardens
       const { data: wardensData, error: wardensError } = await supabase
         .from('wardens')
-        .select('*, bhavans(name)')
+        .select('*, bhawans(name)')
         .order('bhavan_id, display_order')
 
       if (wardensError) throw wardensError
       if (wardensData) setWardens(wardensData as Warden[])
 
-      // 2. Fetch bhavans
-      const { data: bhavansData, error: bhError } = await supabase
+      // 2. Fetch bhawans
+      const { data: bhawansData, error: bhError } = await supabase
         .from('bhavans')
         .select('id, name')
         .order('name')
 
       if (bhError) throw bhError
-      if (bhavansData) setBhavans(bhavansData as Bhavan[])
+      if (bhawansData) setBhawans(bhawansData as Bhawan[])
     } catch (err) {
       console.error('Failed to load wardens content:', err)
     } finally {
@@ -112,14 +112,14 @@ export default function AdminWardensPage() {
         finalImageUrl = publicUrl
       }
 
-      const selectedBhavanId = bhavanId ? parseInt(bhavanId) : null
+      const selectedBhawanId = bhawanId ? parseInt(bhawanId) : null
 
       const { error: insertError } = await supabase
         .from('wardens')
         .insert({
           name: name.trim(),
           title: title.trim(),
-          bhavan_id: selectedBhavanId,
+          bhavan_id: selectedBhawanId,
           image_url: finalImageUrl || null,
           display_order: parseInt(displayOrder) || 0,
           is_active: true
@@ -130,7 +130,7 @@ export default function AdminWardensPage() {
       // Reset Form & Reload List
       setName('')
       setTitle('')
-      setBhavanId('')
+      setBhawanId('')
       setDisplayOrder('0')
       setPhotoFile(null)
 
@@ -221,13 +221,13 @@ export default function AdminWardensPage() {
   // Filtering wardens based on active status toggle
   const filteredWardens = showInactive ? wardens : wardens.filter(w => w.is_active)
 
-  // Separating DOSW and Bhavan Wardens
+  // Separating DOSW and Bhawan Wardens
   const doswList = filteredWardens.filter(w => w.bhavan_id === null)
-  const bhavanList = filteredWardens.filter(w => w.bhavan_id !== null)
+  const bhawanList = filteredWardens.filter(w => w.bhavan_id !== null)
 
-  // Group bhavan wardens by bhavan
-  const groupedBhavanWardens = bhavanList.reduce((acc, w) => {
-    const bhName = w.bhavans?.name || 'Unassigned Bhavan'
+  // Group bhawan wardens by bhawan
+  const groupedBhawanWardens = bhawanList.reduce((acc, w) => {
+    const bhName = w.bhawans?.name || 'Unassigned Bhawan'
     if (!acc[bhName]) acc[bhName] = []
     acc[bhName].push(w)
     return acc
@@ -273,22 +273,22 @@ export default function AdminWardensPage() {
               )}
             </div>
 
-            {/* Bhavan Wardens */}
+            {/* Bhawan Wardens */}
             <div>
               <h3 className="text-xs font-extrabold text-brand uppercase tracking-wider mb-3 border-b border-border pb-1" style={{ fontFamily: 'var(--font-mono)' }}>
-                🏫 Hostel / Bhavan Wardens
+                🏫 Hostel / Bhawan Wardens
               </h3>
-              {Object.keys(groupedBhavanWardens).length === 0 ? (
-                <p className="text-xs text-text-muted italic">No Bhavan wardens configured.</p>
+              {Object.keys(groupedBhawanWardens).length === 0 ? (
+                <p className="text-xs text-text-muted italic">No Bhawan wardens configured.</p>
               ) : (
                 <div className="flex flex-col gap-6">
-                  {Object.keys(groupedBhavanWardens).map(bhName => (
+                  {Object.keys(groupedBhawanWardens).map(bhName => (
                     <div key={bhName} className="border border-border bg-surface-raised p-4 rounded-2xl">
                       <h4 className="text-xs font-bold text-text uppercase mb-3 pl-2 border-l-2 border-brand">
                         {bhName}
                       </h4>
                       <div className="flex flex-col gap-3">
-                        {groupedBhavanWardens[bhName].map(w => renderWardenCard(w))}
+                        {groupedBhawanWardens[bhName].map(w => renderWardenCard(w))}
                       </div>
                     </div>
                   ))}
@@ -338,14 +338,14 @@ export default function AdminWardensPage() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1 block">Bhavan (Leave null for DOSW)</label>
+              <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1 block">Bhawan (Leave null for DOSW)</label>
               <select
-                value={bhavanId}
-                onChange={(e) => setBhavanId(e.target.value)}
+                value={bhawanId}
+                onChange={(e) => setBhawanId(e.target.value)}
                 className="w-full p-3.5 rounded-xl border border-border bg-surface text-text"
               >
                 <option value="">Dean of Student Welfare (DOSW)</option>
-                {bhavans.map(bh => (
+                {bhawans.map(bh => (
                   <option key={bh.id} value={bh.id}>{bh.name}</option>
                 ))}
               </select>

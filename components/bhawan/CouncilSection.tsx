@@ -1,4 +1,4 @@
-import { BhavanTheme } from '@/lib/types'
+import { BhawanTheme } from '@/lib/types'
 
 interface CouncilMemberProp {
   id: number
@@ -9,12 +9,12 @@ interface CouncilMemberProp {
 }
 
 export default function CouncilSection({ 
-  bhavanName, 
+  bhawanName, 
   theme,
   members = []
 }: { 
-  bhavanName: string
-  theme: BhavanTheme
+  bhawanName: string
+  theme: BhawanTheme
   members?: CouncilMemberProp[]
 }) {
   return (
@@ -22,10 +22,10 @@ export default function CouncilSection({
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="mb-8">
           <h2 className="text-3xl sm:text-4xl text-brand tracking-wide uppercase" style={{ fontFamily: 'var(--font-display)', letterSpacing: '0.08em' }}>
-            Bhavan Council
+            Bhawan Council
           </h2>
           <p className="text-text-muted text-sm mt-1">
-            Student representatives of {bhavanName}
+            Student representatives of {bhawanName}
           </p>
         </div>
 

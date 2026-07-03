@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { getBhavanBySlug } from '@/lib/bhavans-data'
+import { getBhawanBySlug } from '@/lib/bhawans-data'
 import ShareModal from '@/components/events/ShareModal'
 
 export interface DbContentItem {
@@ -330,7 +330,7 @@ export function AnnouncementCard({
 export function NoticeCard({ item }: { item: DbContentItem }) {
   const notices = Array.isArray(item.notices) ? item.notices[0] : item.notices
   const body = notices?.body || ''
-  const bhavanName = item.bhavan_scope ? (getBhavanBySlug(item.bhavan_scope)?.name || item.bhavan_scope) : null
+  const bhawanName = item.bhavan_scope ? (getBhawanBySlug(item.bhavan_scope)?.name || item.bhavan_scope) : null
 
   return (
     <article className={cardBase}>
@@ -343,9 +343,9 @@ export function NoticeCard({ item }: { item: DbContentItem }) {
 
       <div className="p-5 flex flex-col gap-2 flex-1 justify-between overflow-y-auto">
         <div className="flex-1">
-          {bhavanName && (
+          {bhawanName && (
             <span className="inline-block bg-surface-muted border border-border text-[9px] font-bold px-2 py-0.5 rounded-sm tracking-wider uppercase mb-2" style={{ fontFamily: 'var(--font-mono)' }}>
-              🏢 {bhavanName.replace(' Bhawan', '').replace(' Hostel', '')}
+              🏢 {bhawanName.replace(' Bhawan', '').replace(' Hostel', '')}
             </span>
           )}
           <h3 className="text-text font-extrabold text-base leading-snug mb-1 line-clamp-2" style={{ fontFamily: 'var(--font-sans)' }}>
@@ -382,9 +382,9 @@ export default function EventsSection({
     setActiveShareItem(item)
   }
 
-  // Find bhavan data if event is scoped
-  const selectedBhavan = activeShareItem?.bhavan_scope 
-    ? getBhavanBySlug(activeShareItem.bhavan_scope)
+  // Find bhawan data if event is scoped
+  const selectedBhawan = activeShareItem?.bhavan_scope 
+    ? getBhawanBySlug(activeShareItem.bhavan_scope)
     : undefined
 
   return (
@@ -438,7 +438,7 @@ export default function EventsSection({
           isOpen={!!activeShareItem} 
           onClose={() => setActiveShareItem(null)} 
           item={activeShareItem}
-          bhavan={selectedBhavan}
+          bhawan={selectedBhawan}
         />
       )}
     </section>

@@ -1,19 +1,19 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { BHAVANS } from '@/lib/bhavans-data'
+import { BHAWANS } from '@/lib/bhawans-data'
 import { createClient } from '@/lib/supabase/client'
 
 const NAV_LINKS = [
   { label: 'MAP', href: '/#campus-map' },
-  { label: 'BHAVANS', href: '/#our-bhavans' },
+  { label: 'BHAWANS', href: '/#our-bhawans' },
   { label: 'EVENTS', href: '/#whats-happening' },
   { label: 'ABOUT US', href: '/about-us' },
 ]
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [mobileBhavansOpen, setMobileBhavansOpen] = useState(false)
+  const [mobileBhawansOpen, setMobileBhawansOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [userName, setUserName] = useState('')
   const [hasRole, setHasRole] = useState(false)
@@ -104,7 +104,7 @@ export default function Navbar() {
             className="text-text-on-brand text-2xl sm:text-3xl md:text-4xl tracking-widest whitespace-nowrap"
             style={{ fontFamily: 'var(--font-display)' }}
           >
-            BHAVANS OF IITR
+            BHAWANS OF IITR
           </h1>
         </Link>
 
@@ -218,16 +218,16 @@ export default function Navbar() {
                   {link.label}
                 </Link>
 
-                {link.label === 'BHAVANS' && (
+                {link.label === 'BHAWANS' && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block w-[760px] bg-surface-raised border border-border text-text shadow-lg rounded-2xl p-6 z-50 mt-0.5 transition-all duration-200">
                     <div className="grid grid-cols-4 gap-5">
                       {/* Column 1: Boys (A-M) */}
                       <div>
                         <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted mb-2 px-2 border-l-2 border-brand/40">Boys (A-M)</p>
                         <ul className="flex flex-col gap-0.5 text-left">
-                          {BHAVANS.filter(b => b.category === 'boys' && b.slug < 'radhakrishnan').map(b => (
+                          {BHAWANS.filter(b => b.category === 'boys' && b.slug < 'radhakrishnan').map(b => (
                             <li key={b.slug}>
-                              <Link href={`/bhavans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
+                              <Link href={`/bhawans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
                                 {b.name.replace(' Bhawan', '')}
                               </Link>
                             </li>
@@ -238,9 +238,9 @@ export default function Navbar() {
                       <div>
                         <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted mb-2 px-2 border-l-2 border-brand/40">Boys (R-Z)</p>
                         <ul className="flex flex-col gap-0.5 text-left">
-                          {BHAVANS.filter(b => b.category === 'boys' && b.slug >= 'radhakrishnan').map(b => (
+                          {BHAWANS.filter(b => b.category === 'boys' && b.slug >= 'radhakrishnan').map(b => (
                             <li key={b.slug}>
-                              <Link href={`/bhavans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
+                              <Link href={`/bhawans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
                                 {b.name.replace(' Bhawan', '')}
                               </Link>
                             </li>
@@ -251,9 +251,9 @@ export default function Navbar() {
                       <div>
                         <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted mb-2 px-2 border-l-2 border-accent/40">Girls</p>
                         <ul className="flex flex-col gap-0.5 text-left">
-                          {BHAVANS.filter(b => b.category === 'girls').map(b => (
+                          {BHAWANS.filter(b => b.category === 'girls').map(b => (
                             <li key={b.slug}>
-                              <Link href={`/bhavans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
+                              <Link href={`/bhawans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
                                 {b.name.replace(' Bhawan', '')}
                               </Link>
                             </li>
@@ -264,9 +264,9 @@ export default function Navbar() {
                       <div>
                         <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-muted mb-2 px-2 border-l-2 border-brand-muted/40">Co-ed & Married</p>
                         <ul className="flex flex-col gap-0.5 text-left">
-                          {BHAVANS.filter(b => ['married', 'coed'].includes(b.category)).map(b => (
+                          {BHAWANS.filter(b => ['married', 'coed'].includes(b.category)).map(b => (
                             <li key={b.slug}>
-                              <Link href={`/bhavans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
+                              <Link href={`/bhawans/${b.slug}`} className="text-xs font-semibold text-text-muted hover:text-brand hover:bg-surface-muted py-1.5 px-2.5 block rounded-lg transition-colors">
                                 {b.name.replace(' Bhawan', '').replace(' Hostel', '').replace(' House', '')}
                               </Link>
                             </li>
@@ -286,25 +286,25 @@ export default function Navbar() {
         <nav className="sm:hidden border-t border-text-on-brand/10 bg-brand">
           <ul>
             {NAV_LINKS.map(link => {
-              if (link.label === 'BHAVANS') {
+              if (link.label === 'BHAWANS') {
                 return (
                   <li key={link.label} className="border-b border-text-on-brand/10">
                     <button
-                      onClick={() => setMobileBhavansOpen(!mobileBhavansOpen)}
+                      onClick={() => setMobileBhawansOpen(!mobileBhawansOpen)}
                       className="w-full flex items-center justify-between px-6 py-4 text-text-on-brand/80 text-xs font-bold tracking-[0.15em] hover:bg-brand-light hover:text-text-on-brand transition-colors text-left cursor-pointer"
                       style={{ fontFamily: 'var(--font-sans)' }}
                     >
-                      <span>BHAVANS</span>
-                      <span className="text-[10px] opacity-65">{mobileBhavansOpen ? '▲' : '▼'}</span>
+                      <span>BHAWANS</span>
+                      <span className="text-[10px] opacity-65">{mobileBhawansOpen ? '▲' : '▼'}</span>
                     </button>
-                    {mobileBhavansOpen && (
+                    {mobileBhawansOpen && (
                       <div className="bg-brand-light px-6 py-4 flex flex-col gap-4 text-left border-t border-text-on-brand/10">
                         {/* Boys Category */}
                         <div>
                           <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-on-brand/40 mb-2 border-l border-text-on-brand/20 pl-2">Boys Hostels</p>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                            {BHAVANS.filter(b => b.category === 'boys').map(b => (
-                              <Link key={b.slug} href={`/bhavans/${b.slug}`} onClick={() => { setMenuOpen(false); setMobileBhavansOpen(false); }} className="text-xs text-text-on-brand/70 hover:text-text-on-brand py-1 block">
+                            {BHAWANS.filter(b => b.category === 'boys').map(b => (
+                              <Link key={b.slug} href={`/bhawans/${b.slug}`} onClick={() => { setMenuOpen(false); setMobileBhawansOpen(false); }} className="text-xs text-text-on-brand/70 hover:text-text-on-brand py-1 block">
                                 {b.name.replace(' Bhawan', '')}
                               </Link>
                             ))}
@@ -314,8 +314,8 @@ export default function Navbar() {
                         <div>
                           <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-on-brand/40 mb-2 border-l border-text-on-brand/20 pl-2">Girls Hostels</p>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                            {BHAVANS.filter(b => b.category === 'girls').map(b => (
-                              <Link key={b.slug} href={`/bhavans/${b.slug}`} onClick={() => { setMenuOpen(false); setMobileBhavansOpen(false); }} className="text-xs text-text-on-brand/70 hover:text-text-on-brand py-1 block">
+                            {BHAWANS.filter(b => b.category === 'girls').map(b => (
+                              <Link key={b.slug} href={`/bhawans/${b.slug}`} onClick={() => { setMenuOpen(false); setMobileBhawansOpen(false); }} className="text-xs text-text-on-brand/70 hover:text-text-on-brand py-1 block">
                                 {b.name.replace(' Bhawan', '')}
                               </Link>
                             ))}
@@ -325,8 +325,8 @@ export default function Navbar() {
                         <div>
                           <p className="text-[10px] font-extrabold uppercase tracking-wider text-text-on-brand/40 mb-2 border-l border-text-on-brand/20 pl-2">Co-ed & Married</p>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                            {BHAVANS.filter(b => ['married', 'coed'].includes(b.category)).map(b => (
-                              <Link key={b.slug} href={`/bhavans/${b.slug}`} onClick={() => { setMenuOpen(false); setMobileBhavansOpen(false); }} className="text-xs text-text-on-brand/70 hover:text-text-on-brand py-1 block">
+                            {BHAWANS.filter(b => ['married', 'coed'].includes(b.category)).map(b => (
+                              <Link key={b.slug} href={`/bhawans/${b.slug}`} onClick={() => { setMenuOpen(false); setMobileBhawansOpen(false); }} className="text-xs text-text-on-brand/70 hover:text-text-on-brand py-1 block">
                                 {b.name.replace(' Bhawan', '').replace(' Hostel', '').replace(' House', '')}
                               </Link>
                             ))}

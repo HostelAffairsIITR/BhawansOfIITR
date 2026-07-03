@@ -2,10 +2,10 @@
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { BHAVANS } from '@/lib/bhavans-data'
+import { BHAWANS } from '@/lib/bhawans-data'
 import { useRouter } from 'next/navigation'
 
-const BHAVAN_COORDS: Record<string, [number, number]> = {
+const BHAWAN_COORDS: Record<string, [number, number]> = {
   azad: [29.8654, 77.8914],
   cautley: [29.8719, 77.8950],
   ganga: [29.8713, 77.8945],
@@ -92,14 +92,14 @@ export default function LeafletMap() {
       maxZoom: 20,
     }).addTo(map)
 
-    // Loop through Bhavans data and add markers
-    BHAVANS.forEach(b => {
-      const coords = BHAVAN_COORDS[b.slug]
+    // Loop through Bhawans data and add markers
+    BHAWANS.forEach(b => {
+      const coords = BHAWAN_COORDS[b.slug]
       if (!coords) return
 
       const pinColor = b.theme.primary || '#1e2a3b'
       const icon = L.divIcon({
-        className: 'custom-bhavan-marker',
+        className: 'custom-bhawan-marker',
         html: `
           <div class="relative flex items-center justify-center" style="width: 24px; height: 24px; transform: translate(-6px, -6px);">
             <span class="animate-ping absolute inline-flex h-6 w-6 rounded-full opacity-35" style="background-color: ${pinColor}"></span>
@@ -124,15 +124,15 @@ export default function LeafletMap() {
           <a href="https://www.google.com/maps/dir/?api=1&destination=${coords[0]},${coords[1]}" target="_blank" rel="noopener noreferrer" class="w-full text-center py-2 px-3 bg-gray-950 text-white rounded-lg text-[9px] font-bold tracking-widest uppercase hover:bg-black transition-colors block decoration-none">
             Directions
           </a>
-          <button class="visit-bhavan-btn w-full text-center py-2 px-3 bg-white text-gray-950 border border-gray-200 rounded-lg text-[9px] font-bold tracking-widest uppercase hover:bg-gray-50 transition-colors block cursor-pointer">
+          <button class="visit-bhawan-btn w-full text-center py-2 px-3 bg-white text-gray-950 border border-gray-200 rounded-lg text-[9px] font-bold tracking-widest uppercase hover:bg-gray-50 transition-colors block cursor-pointer">
             Visit Info
           </button>
         </div>
       `
 
       // Handle visit info click inside the popup
-      popupContent.querySelector('.visit-bhavan-btn')?.addEventListener('click', () => {
-        router.push(`/bhavans/${b.slug}`)
+      popupContent.querySelector('.visit-bhawan-btn')?.addEventListener('click', () => {
+        router.push(`/bhawans/${b.slug}`)
       })
 
       marker.bindPopup(popupContent, {

@@ -1,10 +1,10 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { Bhavan } from '@/lib/types'
+import { Bhawan } from '@/lib/types'
 
-export default function BhavanHero({ bhavan }: { bhavan: Bhavan }) {
-  const { theme } = bhavan
+export default function BhawanHero({ bhawan }: { bhawan: Bhawan }) {
+  const { theme } = bhawan
   const [imgError, setImgError] = useState(false)
 
   return (
@@ -18,13 +18,13 @@ export default function BhavanHero({ bhavan }: { bhavan: Bhavan }) {
       <div className="border-b border-white/10 px-4 sm:px-6 py-3.5">
         <div className="max-w-7xl mx-auto">
           <nav className="flex items-center gap-2 text-xs tracking-wider font-semibold" style={{ fontFamily: 'var(--font-sans)', color: theme.primaryLight }}>
-            <Link href="/" className="hover:text-white transition-colors opacity-70 hover:opacity-100">BHAVANS OF IITR</Link>
+            <Link href="/" className="hover:text-white transition-colors opacity-70 hover:opacity-100">BHAWANS OF IITR</Link>
             <span className="opacity-40">/</span>
-            <Link href="/?tab=boys#our-bhavans" className="hover:text-white transition-colors opacity-70 hover:opacity-100">
-              {bhavan.category.toUpperCase()} HOSTELS
+            <Link href="/?tab=boys#our-bhawans" className="hover:text-white transition-colors opacity-70 hover:opacity-100">
+              {bhawan.category.toUpperCase()} HOSTELS
             </Link>
             <span className="opacity-40">/</span>
-            <span className="text-white">{bhavan.name.toUpperCase()}</span>
+            <span className="text-white">{bhawan.name.toUpperCase()}</span>
           </nav>
         </div>
       </div>
@@ -34,16 +34,16 @@ export default function BhavanHero({ bhavan }: { bhavan: Bhavan }) {
           {/* Left — Text */}
           <div className="flex-1 flex flex-col justify-center py-12 md:py-16 pr-0 md:pr-12 gap-6">
             <div>
-              {bhavan.established && (
+              {bhawan.established && (
                 <p className="text-xs tracking-[0.2em] font-bold mb-2 uppercase opacity-85" style={{ fontFamily: 'var(--font-sans)', color: theme.primaryLight }}>
-                  ESTABLISHED {bhavan.established}
+                  ESTABLISHED {bhawan.established}
                 </p>
               )}
               <h1
                 className="text-[clamp(2.5rem,7vw,5rem)] leading-none tracking-tight font-extrabold"
                 style={{ fontFamily: 'var(--font-sans)', color: '#ffffff' }}
               >
-                {bhavan.name.replace(' Bhawan', '')}
+                {bhawan.name.replace(' Bhawan', '')}
               </h1>
               <p
                 className="text-lg sm:text-xl font-bold tracking-widest mt-1 opacity-70 uppercase"
@@ -53,22 +53,22 @@ export default function BhavanHero({ bhavan }: { bhavan: Bhavan }) {
               </p>
             </div>
 
-            {bhavan.description && (
+            {bhawan.description && (
               <p className="text-sm leading-relaxed max-w-lg opacity-85 text-white/90"
                 style={{ fontFamily: 'var(--font-sans)' }}>
-                {bhavan.description}
+                {bhawan.description}
               </p>
             )}
 
-            {bhavan.strength && (
+            {bhawan.strength && (
               <div className="flex gap-4 flex-wrap">
                 <div className="bg-white/10 border border-white/10 rounded-xl px-5 py-3 shadow-xs backdrop-blur-xs">
-                  <p className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-sans)' }}>{bhavan.strength}+</p>
+                  <p className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-sans)' }}>{bhawan.strength}+</p>
                   <p className="text-[10px] tracking-wider font-bold opacity-75 uppercase" style={{ fontFamily: 'var(--font-sans)', color: theme.primaryLight }}>Residents</p>
                 </div>
                 <div className="bg-white/10 border border-white/10 rounded-xl px-5 py-3 shadow-xs backdrop-blur-xs">
                   <p className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-sans)' }}>
-                    {new Date().getFullYear() - parseInt(bhavan.established ?? '2000')}
+                    {new Date().getFullYear() - parseInt(bhawan.established ?? '2000')}
                   </p>
                   <p className="text-[10px] tracking-wider font-bold opacity-75 uppercase" style={{ fontFamily: 'var(--font-sans)', color: theme.primaryLight }}>Years Old</p>
                 </div>
@@ -104,15 +104,15 @@ export default function BhavanHero({ bhavan }: { bhavan: Bhavan }) {
           <div className="w-full md:w-2/5 min-h-[260px] md:min-h-0 flex items-center justify-center relative overflow-hidden bg-black/10 backdrop-blur-xs md:border-l border-white/10">
             {!imgError ? (
               <img 
-                src={`/images/bhavans/${bhavan.slug}.webp`} 
-                alt={bhavan.name} 
+                src={`/images/bhawans/${bhawan.slug}.webp`} 
+                alt={bhawan.name} 
                 className="absolute inset-0 w-full h-full object-cover"
                 onError={() => setImgError(true)}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center" style={{ background: `${theme.primaryDark}30` }}>
                 <span className="text-xs font-bold tracking-wider text-center px-8 opacity-40 uppercase" style={{ fontFamily: 'var(--font-sans)', color: theme.primaryLight }}>
-                  [ {bhavan.name} Photograph ]
+                  [ {bhawan.name} Photograph ]
                 </span>
               </div>
             )}

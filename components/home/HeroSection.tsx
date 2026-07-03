@@ -31,15 +31,15 @@ export default function HeroSection() {
 
           <p className="text-text-muted text-sm leading-relaxed max-w-sm" style={{ fontFamily: 'var(--font-mono)' }}>
             Indian Institute of Technology Roorkee, Uttarakhand.<br/>
-            Home to 21 Bhavans housing thousands of students.
+            Home to 21 Bhawans housing thousands of students.
           </p>
 
           <div className="flex flex-wrap gap-4 mt-2">
             <a
-              href="#our-bhavans"
+              href="#our-bhawans"
               className="btn-primary px-8 py-3.5 text-sm tracking-widest"
             >
-              EXPLORE BHAVANS →
+              EXPLORE BHAWANS →
             </a>
             <a
               href="#whats-happening"

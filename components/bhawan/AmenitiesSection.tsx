@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { BhavanTheme, Amenity } from '@/lib/types'
+import { BhawanTheme, Amenity } from '@/lib/types'
 
 const AMENITIES: Amenity[] = [
   {
@@ -16,7 +16,7 @@ const AMENITIES: Amenity[] = [
     id: 'canteen',
     name: 'Canteen',
     icon: '🍽️',
-    description: 'Bhavan mess and attached canteen serving breakfast, lunch, and dinner daily.',
+    description: 'Bhawan mess and attached canteen serving breakfast, lunch, and dinner daily.',
     timing: 'Mess: 7:30 AM – 9:00 PM · Canteen: 8:00 AM – 11:00 PM',
     details: ['Subsidised mess meals', 'À la carte canteen', 'Special Sunday menu', 'Dietary options available'],
     image_url: null,
@@ -52,7 +52,7 @@ const AMENITIES: Amenity[] = [
     id: 'wifi',
     name: 'Wi-Fi',
     icon: '📡',
-    description: 'High-speed campus Wi-Fi throughout the bhavan — all rooms and common areas.',
+    description: 'High-speed campus Wi-Fi throughout the bhawan — all rooms and common areas.',
     timing: '24/7',
     details: ['100 Mbps per user', 'All rooms covered', 'Wired LAN available', 'IITR campus network'],
     image_url: null,
@@ -61,10 +61,10 @@ const AMENITIES: Amenity[] = [
 
 export default function AmenitiesSection({ 
   theme, 
-  bhavanSlug 
+  bhawanSlug 
 }: { 
-  theme: BhavanTheme
-  bhavanSlug: string 
+  theme: BhawanTheme
+  bhawanSlug: string 
 }) {
   const [activeId, setActiveId] = useState<string>(AMENITIES[0].id)
   const [imgError, setImgError] = useState(false)
@@ -74,7 +74,7 @@ export default function AmenitiesSection({
   // Reset image error state when active tab or hostel changes
   useEffect(() => {
     setImgError(false)
-  }, [activeId, bhavanSlug])
+  }, [activeId, bhawanSlug])
 
   return (
     <section id="amenities" className="py-14 sm:py-20 border-b border-border bg-surface/30">
@@ -162,7 +162,7 @@ export default function AmenitiesSection({
           <div className="md:w-[40%] min-h-[220px] md:min-h-0 relative flex overflow-hidden">
             {!imgError ? (
               <img 
-                src={`/images/bhavans/${bhavanSlug}/amenities/${active.id}.webp`} 
+                src={`/images/bhawans/${bhawanSlug}/amenities/${active.id}.webp`} 
                 alt={active.name} 
                 className="w-full h-full object-cover"
                 onError={() => setImgError(true)}

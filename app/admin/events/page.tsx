@@ -12,7 +12,7 @@ interface ContentItem {
   bhavan_scope: number | null
   priority: number
   created_at: string
-  bhavans?: {
+  bhawans?: {
     name: string
   } | null
   permissions?: {
@@ -58,7 +58,7 @@ export default function AdminEventsPage() {
     try {
       const { data, error } = await supabase
         .from('content_items')
-        .select('*, bhavans(name), permissions(user_id, role, users!permissions_user_id_fkey(name))')
+        .select('*, bhawans(name), permissions(user_id, role, users!permissions_user_id_fkey(name))')
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -270,7 +270,7 @@ export default function AdminEventsPage() {
               </thead>
               <tbody className="divide-y divide-border/60">
                 {filtered.map(item => {
-                  const scopeLabel = item.bhavan_scope ? item.bhavans?.name : 'College-wide'
+                  const scopeLabel = item.bhavan_scope ? item.bhawans?.name : 'College-wide'
                   const managers = item.permissions?.map(p => p.users?.name).filter(Boolean).join(', ') || 'None'
 
                   return (

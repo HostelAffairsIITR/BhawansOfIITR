@@ -8,8 +8,8 @@ export const MOCK_EVENTS: AnyEvent[] = [
   {
     id: 'poll-1',
     type: 'poll',
-    title: 'Which Bhavan Has The Best Mess Food?',
-    question: 'Vote now — results revealed on Bhavan Day.',
+    title: 'Which Bhawan Has The Best Mess Food?',
+    question: 'Vote now — results revealed on Bhawan Day.',
     status: 'open',
     createdAt: '2025-11-01',
     endsAt: '2025-12-15',
@@ -31,14 +31,14 @@ export const MOCK_EVENTS: AnyEvent[] = [
     publishedAt: '2024-11-10',
     status: 'open',
     createdAt: '2024-11-10',
-    bhavanSlug: 'ganga',
-    bhavanName: 'Ganga Bhawan',
+    bhawanSlug: 'ganga',
+    bhawanName: 'Ganga Bhawan',
   },
   {
     id: 'poll-2',
     type: 'poll',
-    title: 'Best Inter-Bhavan Cultural Night 2024?',
-    question: 'From Thomso to Cognizance — which bhavan owned the stage?',
+    title: 'Best Inter-Bhawan Cultural Night 2024?',
+    question: 'From Thomso to Cognizance — which bhawan owned the stage?',
     status: 'open',
     createdAt: '2024-11-20',
     endsAt: '2024-12-01',
@@ -53,8 +53,8 @@ export const MOCK_EVENTS: AnyEvent[] = [
   {
     id: 'blog-2',
     type: 'blog',
-    title: 'Azad Bhawan Wins Inter-Bhavan Football Cup',
-    excerpt: 'In a nail-biting final, Azad Bhawan clinched the Inter-Bhavan Football Cup for the third consecutive year...',
+    title: 'Azad Bhawan Wins Inter-Bhawan Football Cup',
+    excerpt: 'In a nail-biting final, Azad Bhawan clinched the Inter-Bhawan Football Cup for the third consecutive year...',
     coverImage: '/images/placeholder-campus.jpg',
     author: 'Rohan Sharma',
     publishedAt: '2024-10-20',
@@ -64,19 +64,19 @@ export const MOCK_EVENTS: AnyEvent[] = [
 ]
 
 export const MOCK_WARDENS: Warden[] = [
-  { name: 'Prof. R. K. Sharma', bhavanName: 'Azad Bhawan', bhavanSlug: 'azad' },
-  { name: 'Prof. S. Mehta', bhavanName: 'Ganga Bhawan', bhavanSlug: 'ganga' },
-  { name: 'Prof. A. Verma', bhavanName: 'Vivekananda Bhawan', bhavanSlug: 'vivekananda' },
-  { name: 'Prof. P. Singh', bhavanName: 'Rajendra Bhawan', bhavanSlug: 'rajendra' },
-  { name: 'Prof. M. Gupta', bhavanName: 'Sarojini Bhawan', bhavanSlug: 'sarojini' },
-  { name: 'Prof. K. Tiwari', bhavanName: 'Cautley Bhawan', bhavanSlug: 'cautley' },
+  { name: 'Prof. R. K. Sharma', bhawanName: 'Azad Bhawan', bhawanSlug: 'azad' },
+  { name: 'Prof. S. Mehta', bhawanName: 'Ganga Bhawan', bhawanSlug: 'ganga' },
+  { name: 'Prof. A. Verma', bhawanName: 'Vivekananda Bhawan', bhawanSlug: 'vivekananda' },
+  { name: 'Prof. P. Singh', bhawanName: 'Rajendra Bhawan', bhawanSlug: 'rajendra' },
+  { name: 'Prof. M. Gupta', bhawanName: 'Sarojini Bhawan', bhawanSlug: 'sarojini' },
+  { name: 'Prof. K. Tiwari', bhawanName: 'Cautley Bhawan', bhawanSlug: 'cautley' },
 ]
 
 export const MOCK_GALLERY: GalleryImage[] = [
   { id: '1', url: '/images/placeholder-campus.jpg', caption: 'Thomson Building' },
   { id: '2', url: '/images/placeholder-campus.jpg', caption: 'Solani River View' },
-  { id: '3', url: '/images/placeholder-campus.jpg', caption: 'Bhavan Day 2024' },
-  { id: '4', url: '/images/placeholder-campus.jpg', caption: 'Inter-Bhavan Sports' },
+  { id: '3', url: '/images/placeholder-campus.jpg', caption: 'Bhawan Day 2024' },
+  { id: '4', url: '/images/placeholder-campus.jpg', caption: 'Inter-Bhawan Sports' },
   { id: '5', url: '/images/placeholder-campus.jpg', caption: 'Cultural Night' },
   { id: '6', url: '/images/placeholder-campus.jpg', caption: 'Mess Hall' },
   { id: '7', url: '/images/placeholder-campus.jpg', caption: 'Common Room' },

@@ -74,7 +74,7 @@ export default function AdminIssuesPage() {
       const [rolesRes, permsRes] = await Promise.all([
         supabase
           .from('user_roles')
-          .select('*, bhavans(name)')
+          .select('*, bhawans(name)')
           .eq('user_id', issue.user_id),
         supabase
           .from('permissions')
@@ -271,10 +271,10 @@ export default function AdminIssuesPage() {
               <p className="text-xs font-bold text-text-muted animate-pulse py-8 text-center uppercase">Auditing permissions...</p>
             ) : accessDetails ? (
               <div className="flex flex-col gap-6 text-xs">
-                {/* Global & Bhavan Roles */}
+                {/* Global & Bhawan Roles */}
                 <div>
                   <h4 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2 border-b border-border pb-1" style={{ fontFamily: 'var(--font-mono)' }}>
-                    🏢 Global & Bhavan Roles
+                    🏢 Global & Bhawan Roles
                   </h4>
                   {accessDetails.roles.length === 0 ? (
                     <p className="text-xs text-text-muted/60 italic">No assigned global user roles.</p>
@@ -283,7 +283,7 @@ export default function AdminIssuesPage() {
                       {accessDetails.roles.map(role => (
                         <div key={role.id} className="border border-border p-2.5 rounded-xl bg-surface flex justify-between items-center">
                           <span className="font-bold text-brand uppercase tracking-wider text-[10px]">{role.role}</span>
-                          <span className="text-[10px] text-text-muted font-medium">Scope: {role.bhavan_id ? role.bhavans?.name : 'College-wide'}</span>
+                          <span className="text-[10px] text-text-muted font-medium">Scope: {role.bhavan_id ? role.bhawans?.name : 'College-wide'}</span>
                         </div>
                       ))}
                     </div>

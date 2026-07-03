@@ -8,10 +8,10 @@ interface ShareModalProps {
   isOpen: boolean
   onClose: () => void
   item: any
-  bhavan?: any // Optional details of the Bhavan
+  bhawan?: any // Optional details of the Bhawan
 }
 
-export default function ShareModal({ isOpen, onClose, item, bhavan }: ShareModalProps) {
+export default function ShareModal({ isOpen, onClose, item, bhawan }: ShareModalProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string>('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -127,8 +127,8 @@ export default function ShareModal({ isOpen, onClose, item, bhavan }: ShareModal
   }
 
   // Common metadata
-  const primaryColor = bhavan?.theme?.primary || '#ea580c'
-  const secondaryColor = bhavan?.theme?.primaryDark || '#7c2d12'
+  const primaryColor = bhawan?.theme?.primary || '#ea580c'
+  const secondaryColor = bhawan?.theme?.primaryDark || '#7c2d12'
 
   const baseCoverUrl = 
     item.type === 'blog' ? (item.blogs?.[0]?.cover_image_url || item.blogs?.cover_image_url) :
@@ -203,7 +203,7 @@ export default function ShareModal({ isOpen, onClose, item, bhavan }: ShareModal
                 </div>
               </div>
               <span className="border border-slate-200 px-2 py-0.5 rounded-md bg-white font-bold text-[8px] tracking-wider text-slate-500 uppercase">
-                {bhavan ? bhavan.name.replace(' Bhawan', '') : 'Council'}
+                {bhawan ? bhawan.name.replace(' Bhawan', '') : 'Council'}
               </span>
             </div>
 
@@ -281,10 +281,10 @@ export default function ShareModal({ isOpen, onClose, item, bhavan }: ShareModal
             <div className="border-t border-slate-200 pt-2 flex items-center justify-between z-10">
               <div>
                 <p className="text-[9px] font-black text-slate-800 uppercase tracking-wide">
-                  {bhavan ? `${bhavan.name.toUpperCase()} FEED` : 'COLLEGE EVENTS'}
+                  {bhawan ? `${bhawan.name.toUpperCase()} FEED` : 'COLLEGE EVENTS'}
                 </p>
                 <p className="text-[7px] text-slate-400 font-mono lowercase">
-                  bhavans.iitr.ac.in
+                  bhawans.iitr.ac.in
                 </p>
               </div>
               <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg p-1">
@@ -417,7 +417,7 @@ export default function ShareModal({ isOpen, onClose, item, bhavan }: ShareModal
                 textTransform: 'uppercase'
               }}
             >
-              {bhavan ? `🏛️ ${bhavan.name.replace(' Bhawan', '')}` : '🌐 College-Wide'}
+              {bhawan ? `🏛️ ${bhawan.name.replace(' Bhawan', '')}` : '🌐 College-Wide'}
             </div>
           </div>
 
@@ -635,10 +635,10 @@ export default function ShareModal({ isOpen, onClose, item, bhavan }: ShareModal
                 Check it out on
               </span>
               <span style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', letterSpacing: '0.05em', marginBottom: '4px' }}>
-                {bhavan ? `${bhavan.name.toUpperCase()} FEED` : 'COLLEGE EVENTS'}
+                {bhawan ? `${bhawan.name.toUpperCase()} FEED` : 'COLLEGE EVENTS'}
               </span>
               <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 700 }}>
-                bhavans.iitr.ac.in/events/{String(item.id).slice(0, 8)}
+                bhawans.iitr.ac.in/events/{String(item.id).slice(0, 8)}
               </span>
             </div>
 

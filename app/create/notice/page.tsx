@@ -16,15 +16,15 @@ export default function CreateNoticePage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
-  const [bhavans, setBhavans] = useState<any[]>([])
+  const [bhawans, setBhawans] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
-  const [isBhavanScopeRestricted, setIsBhavanScopeRestricted] = useState(false)
-  const [allowedBhavanIds, setAllowedBhavanIds] = useState<number[] | null>(null)
+  const [isBhawanScopeRestricted, setIsBhawanScopeRestricted] = useState(false)
+  const [allowedBhawanIds, setAllowedBhawanIds] = useState<number[] | null>(null)
 
   // Form states
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
-  const [selectedBhavanId, setSelectedBhavanId] = useState<string>('')
+  const [selectedBhawanId, setSelectedBhawanId] = useState<string>('')
   const [attachmentFiles, setAttachmentFiles] = useState<File[]>([])
 
   const router = useRouter()
@@ -59,34 +59,34 @@ export default function CreateNoticePage() {
           return
         }
 
-        const userBhavanIds = roles
+        const userBhawanIds = roles
           ? roles.map(r => r.bhavan_id).filter((id): id is number => id !== null)
           : []
         const hasGlobalScope = isSuperAdmin || (roles ? roles.some(r => r.bhavan_id === null) : false)
 
         let allowedIds: number[] | null = null
-        if (!hasGlobalScope && userBhavanIds.length > 0) {
-          allowedIds = Array.from(new Set(userBhavanIds))
+        if (!hasGlobalScope && userBhawanIds.length > 0) {
+          allowedIds = Array.from(new Set(userBhawanIds))
         }
 
-        const { data: bhavansList } = await supabase
+        const { data: bhawansList } = await supabase
           .from('bhavans')
           .select('id, name')
           .order('name')
 
-        if (bhavansList) {
+        if (bhawansList) {
           if (allowedIds) {
-            const filtered = bhavansList.filter(b => allowedIds!.includes(b.id))
-            setBhavans(filtered)
-            setIsBhavanScopeRestricted(true)
-            setAllowedBhavanIds(allowedIds)
+            const filtered = bhawansList.filter(b => allowedIds!.includes(b.id))
+            setBhawans(filtered)
+            setIsBhawanScopeRestricted(true)
+            setAllowedBhawanIds(allowedIds)
             if (allowedIds.length > 0) {
-              setSelectedBhavanId(allowedIds[0].toString())
+              setSelectedBhawanId(allowedIds[0].toString())
             }
           } else {
-            setBhavans(bhavansList)
-            if (bhavansList.length > 0) {
-              setSelectedBhavanId(bhavansList[0].id.toString())
+            setBhawans(bhawansList)
+            if (bhawansList.length > 0) {
+              setSelectedBhawanId(bhawansList[0].id.toString())
             }
           }
         }
@@ -122,8 +122,8 @@ export default function CreateNoticePage() {
       setErrorMsg('Please write a notice body.')
       return
     }
-    if (!selectedBhavanId) {
-      setErrorMsg('Please select a Bhavan scope.')
+    if (!selectedBhawanId) {
+      setErrorMsg('Please select a Bhawan scope.')
       return
     }
 
@@ -162,7 +162,7 @@ export default function CreateNoticePage() {
           type: 'notice',
           title: title.trim(),
           status,
-          bhavan_scope: parseInt(selectedBhavanId),
+          bhavan_scope: parseInt(selectedBhawanId),
           allows_comments: false,
           allows_share: false,
           created_by: userId
@@ -246,7 +246,7 @@ export default function CreateNoticePage() {
               MAKE NEW NOTICE
             </h1>
             <p className="text-xs text-text-muted mb-8" style={{ fontFamily: 'var(--font-sans)' }}>
-              Publish an official notice for your Bhavan.
+              Publish an official notice for your Bhawan.
             </p>
 
             {errorMsg && (
@@ -286,23 +286,23 @@ export default function CreateNoticePage() {
                 />
               </div>
 
-              {/* Bhavan Scope Selector */}
+              {/* Bhawan Scope Selector */}
               <div>
                 <label className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 block" style={{ fontFamily: 'var(--font-sans)' }}>
-                  Bhavan Scope *
+                  Bhawan Scope *
                 </label>
                 <select
-                  value={selectedBhavanId}
-                  onChange={(e) => setSelectedBhavanId(e.target.value)}
-                  disabled={isBhavanScopeRestricted && allowedBhavanIds?.length === 1}
+                  value={selectedBhawanId}
+                  onChange={(e) => setSelectedBhawanId(e.target.value)}
+                  disabled={isBhawanScopeRestricted && allowedBhawanIds?.length === 1}
                   className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-text disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {bhavans.map(b => (
+                  {bhawans.map(b => (
                     <option key={b.id} value={b.id}>{b.name}</option>
                   ))}
                 </select>
                 <p className="text-[10px] text-text-muted mt-1.5" style={{ fontFamily: 'var(--font-sans)' }}>
-                  Hostel notices are required to be scoped to a single Bhavan and will show up on that Bhavan's page.
+                  Hostel notices are required to be scoped to a single Bhawan and will show up on that Bhawan's page.
                 </p>
               </div>
 

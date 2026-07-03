@@ -1,4 +1,4 @@
-import { BhavanTheme, EmergencyContact } from '@/lib/types'
+import { BhawanTheme, EmergencyContact } from '@/lib/types'
 
 const EMERGENCY_CONTACTS: EmergencyContact[] = [
   { label: 'Warden (Emergency)', phone: '+91-1332-285XXX', available: '24/7' },
@@ -9,7 +9,7 @@ const EMERGENCY_CONTACTS: EmergencyContact[] = [
   { label: 'DOSW Office', phone: '+91-1332-285XXX', available: 'Office Hours' },
 ]
 
-export default function EmergencySection({ theme }: { theme: BhavanTheme }) {
+export default function EmergencySection({ theme }: { theme: BhawanTheme }) {
   return (
     <section id="emergency" className="py-14 sm:py-20 border-b border-border bg-surface/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">

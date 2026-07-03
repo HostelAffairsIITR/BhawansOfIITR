@@ -4,10 +4,10 @@ import ShareModal from '@/components/events/ShareModal'
 
 export default function ShareSection({ 
   item, 
-  bhavan 
+  bhawan 
 }: { 
   item: any
-  bhavan: any 
+  bhawan: any 
 }) {
   const [shareUrl, setShareUrl] = useState('')
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
@@ -73,7 +73,7 @@ export default function ShareSection({
           isOpen={isShareModalOpen} 
           onClose={() => setIsShareModalOpen(false)} 
           item={item}
-          bhavan={bhavan}
+          bhawan={bhawan}
         />
       )}
     </div>

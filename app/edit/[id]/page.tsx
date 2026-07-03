@@ -53,8 +53,8 @@ export default async function EditPage({ params }: EditPageProps) {
     }
   }
 
-  // 5. Fetch bhavans list
-  const { data: bhavans } = await supabase
+  // 5. Fetch bhawans list
+  const { data: bhawans } = await supabase
     .from('bhavans')
     .select('id, name')
     .order('name')
@@ -63,7 +63,7 @@ export default async function EditPage({ params }: EditPageProps) {
     <>
       <Navbar />
       <main className="min-h-screen bg-surface py-10">
-        <EditFormWrapper item={item} bhavans={bhavans || []} userId={user.id} />
+        <EditFormWrapper item={item} bhawans={bhawans || []} userId={user.id} />
       </main>
       <Footer />
     </>

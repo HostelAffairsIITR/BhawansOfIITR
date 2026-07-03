@@ -25,13 +25,13 @@ interface Member {
   name: string
   image_url: string | null
   title: string
-  group_type: 'bhavan_council' | 'hostel_affairs'
+  group_type: 'bhawan_council' | 'hostel_affairs'
   bhavan_id: number | null
   vertical: string | null
   display_order: number
 }
 
-interface Bhavan {
+interface Bhawan {
   id: number
   name: string
 }
@@ -43,7 +43,7 @@ export default function AdminMembersPage() {
   const [terms, setTerms] = useState<CouncilTerm[]>([])
   const [selectedTermId, setSelectedTermId] = useState<number | ''>('')
   const [members, setMembers] = useState<Member[]>([])
-  const [bhavans, setBhavans] = useState<Bhavan[]>([])
+  const [bhawans, setBhawans] = useState<Bhawan[]>([])
   const [loading, setLoading] = useState(true)
 
   // Council Term Form State
@@ -58,8 +58,8 @@ export default function AdminMembersPage() {
   const [memberName, setMemberName] = useState('')
   const [memberImage, setMemberImage] = useState<string | null>(null)
   const [memberTitle, setMemberTitle] = useState('')
-  const [memberGroupType, setMemberGroupType] = useState<'bhavan_council' | 'hostel_affairs'>('bhavan_council')
-  const [memberBhavanId, setMemberBhavanId] = useState('')
+  const [memberGroupType, setMemberGroupType] = useState<'bhawan_council' | 'hostel_affairs'>('bhawan_council')
+  const [memberBhawanId, setMemberBhawanId] = useState('')
   const [memberVertical, setMemberVertical] = useState('')
   const [memberDisplayOrder, setMemberDisplayOrder] = useState('0')
   const [newPhotoFile, setNewPhotoFile] = useState<File | null>(null)
@@ -91,13 +91,13 @@ export default function AdminMembersPage() {
         }
       }
 
-      // 2. Fetch bhavans
+      // 2. Fetch bhawans
       const { data: bhData } = await supabase
         .from('bhavans')
         .select('id, name')
         .order('name')
 
-      if (bhData) setBhavans(bhData as Bhavan[])
+      if (bhData) setBhawans(bhData as Bhawan[])
     } catch (err) {
       console.error('Error fetching baseline data:', err)
     } finally {
@@ -267,7 +267,7 @@ export default function AdminMembersPage() {
           image_url: finalImageUrl || null,
           title: memberTitle.trim(),
           group_type: memberGroupType,
-          bhavan_id: memberGroupType === 'bhavan_council' ? parseInt(memberBhavanId) : null,
+          bhavan_id: memberGroupType === 'bhawan_council' ? parseInt(memberBhawanId) : null,
           vertical: memberGroupType === 'hostel_affairs' ? (memberVertical.trim() || 'General') : null,
           display_order: parseInt(memberDisplayOrder) || 0
         })
@@ -282,7 +282,7 @@ export default function AdminMembersPage() {
       setMemberName('')
       setMemberImage(null)
       setMemberTitle('')
-      setMemberBhavanId('')
+      setMemberBhawanId('')
       setMemberVertical('')
       setMemberDisplayOrder('0')
       setNewPhotoFile(null)
@@ -344,17 +344,17 @@ export default function AdminMembersPage() {
   }
 
   // Group members dynamically
-  const bhavanCouncil = members.filter(m => m.group_type === 'bhavan_council')
+  const bhawanCouncil = members.filter(m => m.group_type === 'bhawan_council')
   const hostelAffairs = members.filter(m => m.group_type === 'hostel_affairs')
 
-  // Bhavan mapping
-  const getBhavanName = (id: number | null) => {
+  // Bhawan mapping
+  const getBhawanName = (id: number | null) => {
     if (!id) return ''
-    return bhavans.find(b => b.id === id)?.name || `Bhavan ID ${id}`
+    return bhawans.find(b => b.id === id)?.name || `Bhawan ID ${id}`
   }
 
-  // Group Bhavan Council by Bhavan ID
-  const bhavanGroups = bhavanCouncil.reduce((acc, member) => {
+  // Group Bhawan Council by Bhawan ID
+  const bhawanGroups = bhawanCouncil.reduce((acc, member) => {
     const key = member.bhavan_id || 0
     if (!acc[key]) acc[key] = []
     acc[key].push(member)
@@ -377,7 +377,7 @@ export default function AdminMembersPage() {
           Council Members Management
         </h2>
         <p className="text-xs text-text-muted mt-1">
-          Maintain active council terms and student members of the Bhavan Councils and Hostel Affairs.
+          Maintain active council terms and student members of the Bhawan Councils and Hostel Affairs.
         </p>
       </div>
 
@@ -563,22 +563,22 @@ export default function AdminMembersPage() {
                     onChange={(e) => setMemberGroupType(e.target.value as any)}
                     className="w-full p-3 rounded-xl border border-border bg-surface text-text"
                   >
-                    <option value="bhavan_council">Bhavan Council</option>
+                    <option value="bhawan_council">Bhawan Council</option>
                     <option value="hostel_affairs">Hostel Affairs</option>
                   </select>
                 </div>
                 <div>
-                  {memberGroupType === 'bhavan_council' ? (
+                  {memberGroupType === 'bhawan_council' ? (
                     <>
-                      <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1 block">Bhavan Scope *</label>
+                      <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1 block">Bhawan Scope *</label>
                       <select
                         required
-                        value={memberBhavanId}
-                        onChange={(e) => setMemberBhavanId(e.target.value)}
+                        value={memberBhawanId}
+                        onChange={(e) => setMemberBhawanId(e.target.value)}
                         className="w-full p-3 rounded-xl border border-border bg-surface text-text"
                       >
-                        <option value="">Select Bhavan...</option>
-                        {bhavans.map(bh => (
+                        <option value="">Select Bhawan...</option>
+                        {bhawans.map(bh => (
                           <option key={bh.id} value={bh.id}>{bh.name}</option>
                         ))}
                       </select>
@@ -635,20 +635,20 @@ export default function AdminMembersPage() {
 
           {/* Members Groups Display */}
           <div className="flex flex-col gap-6">
-            {/* BHAVAN COUNCILS */}
+            {/* BHAWAN COUNCILS */}
             <div>
               <h3 className="text-sm font-extrabold text-brand uppercase tracking-wider mb-4 border-b border-border pb-2" style={{ fontFamily: 'var(--font-mono)' }}>
-                🏫 Bhavan Councils
+                🏫 Bhawan Councils
               </h3>
 
-              {Object.keys(bhavanGroups).length === 0 ? (
-                <p className="text-xs text-text-muted italic">No Bhavan Council members in this term.</p>
+              {Object.keys(bhawanGroups).length === 0 ? (
+                <p className="text-xs text-text-muted italic">No Bhawan Council members in this term.</p>
               ) : (
                 <div className="flex flex-col gap-6">
-                  {Object.keys(bhavanGroups).map(bhavanIdStr => {
-                    const bhId = parseInt(bhavanIdStr)
-                    const name = getBhavanName(bhId)
-                    const grpMembers = bhavanGroups[bhId]
+                  {Object.keys(bhawanGroups).map(bhawanIdStr => {
+                    const bhId = parseInt(bhawanIdStr)
+                    const name = getBhawanName(bhId)
+                    const grpMembers = bhawanGroups[bhId]
 
                     return (
                       <div key={bhId} className="border border-border bg-surface-raised p-4 rounded-2xl">

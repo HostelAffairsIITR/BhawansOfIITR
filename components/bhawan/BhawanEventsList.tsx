@@ -3,14 +3,14 @@ import { useState } from 'react'
 import { PollCard, BlogCard, AnnouncementCard, DbContentItem } from '@/components/home/EventsSection'
 import ShareModal from '@/components/events/ShareModal'
 
-export default function BhavanEventsList({ 
+export default function BhawanEventsList({ 
   events, 
   votes,
-  bhavan 
+  bhawan 
 }: { 
   events: DbContentItem[]
   votes: any[]
-  bhavan: any 
+  bhawan: any 
 }) {
   const [activeShareItem, setActiveShareItem] = useState<DbContentItem | null>(null)
 
@@ -28,21 +28,21 @@ export default function BhavanEventsList({
                 item={event} 
                 votes={votes} 
                 onShare={handleShare} 
-                theme={bhavan.theme}
+                theme={bhawan.theme}
               />
             )}
             {event.type === 'blog' && (
               <BlogCard 
                 item={event} 
                 onShare={handleShare} 
-                theme={bhavan.theme}
+                theme={bhawan.theme}
               />
             )}
             {event.type === 'announcement' && (
               <AnnouncementCard 
                 item={event} 
                 onShare={handleShare} 
-                theme={bhavan.theme}
+                theme={bhawan.theme}
               />
             )}
           </div>
@@ -54,7 +54,7 @@ export default function BhavanEventsList({
           isOpen={!!activeShareItem} 
           onClose={() => setActiveShareItem(null)} 
           item={activeShareItem}
-          bhavan={bhavan}
+          bhawan={bhawan}
         />
       )}
     </>

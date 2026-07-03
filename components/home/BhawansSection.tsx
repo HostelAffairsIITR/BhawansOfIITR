@@ -1,25 +1,25 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { BHAVANS, BHAVAN_CATEGORIES, getBhavansByCategory } from '@/lib/bhavans-data'
-import { BhavanCategory, Bhavan } from '@/lib/types'
+import { BHAWANS, BHAWAN_CATEGORIES, getBhawansByCategory } from '@/lib/bhawans-data'
+import { BhawanCategory, Bhawan } from '@/lib/types'
 
-interface BhavansSectionProps {
-  activeTab: BhavanCategory
+interface BhawansSectionProps {
+  activeTab: BhawanCategory
   selectedSlug?: string
 }
 
-function BhavanButton({ bhavan, isSelected }: { bhavan: Bhavan; isSelected: boolean }) {
+function BhawanButton({ bhawan, isSelected }: { bhawan: Bhawan; isSelected: boolean }) {
   return (
     <Link
-      href={`?tab=${bhavan.category}&selected=${bhavan.slug}#our-bhavans`}
+      href={`?tab=${bhawan.category}&selected=${bhawan.slug}#our-bhawans`}
       className={`flex items-center justify-between w-full min-h-[48px] px-5 py-3 text-sm font-medium rounded-xl transition-all duration-200
         ${isSelected
           ? 'bg-brand-light text-white border border-brand-light shadow-md scale-[1.02]'
           : 'bg-surface-raised text-text border border-border shadow-xs hover:-translate-y-0.5 hover:shadow-sm hover:border-brand-muted/40 hover:bg-surface-muted/50'
         }`}
     >
-      <span>{bhavan.name}</span>
+      <span>{bhawan.name}</span>
       {isSelected ? (
         <span className="text-white text-xs">✓</span>
       ) : (
@@ -29,19 +29,19 @@ function BhavanButton({ bhavan, isSelected }: { bhavan: Bhavan; isSelected: bool
   )
 }
 
-function BhavanDetail({ bhavan }: { bhavan: Bhavan | undefined }) {
+function BhawanDetail({ bhawan }: { bhawan: Bhawan | undefined }) {
   const [imgError, setImgError] = useState(false)
 
-  // Reset imgError when selected bhavan changes
+  // Reset imgError when selected bhawan changes
   useEffect(() => {
     setImgError(false)
-  }, [bhavan?.slug])
+  }, [bhawan?.slug])
 
-  if (!bhavan) {
+  if (!bhawan) {
     return (
       <div className="rounded-2xl border border-border bg-surface-raised p-10 sm:p-16 flex items-center justify-center min-h-[200px] shadow-sm">
         <p className="text-text-muted text-sm text-center font-medium">
-          Select a Bhavan to view its details
+          Select a Bhawan to view its details
         </p>
       </div>
     )
@@ -55,37 +55,37 @@ function BhavanDetail({ bhavan }: { bhavan: Bhavan | undefined }) {
           <div className="flex flex-col gap-3">
             <div>
               <span className="bg-brand/10 text-brand text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>
-                {bhavan.category === 'coed' ? 'Co-Ed' : bhavan.category} Hostel
+                {bhawan.category === 'coed' ? 'Co-Ed' : bhawan.category} Hostel
               </span>
               <h3 className="text-2xl sm:text-3xl font-bold text-brand mt-2 leading-tight" style={{ fontFamily: 'var(--font-sans)' }}>
-                {bhavan.name}
+                {bhawan.name}
               </h3>
-              {bhavan.established && (
+              {bhawan.established && (
                 <p className="text-xs text-text-muted mt-1 font-medium">
-                  Established: <span className="text-text">{bhavan.established}</span>
-                  {bhavan.strength ? `  ·  Strength: ` : ''}
-                  {bhavan.strength ? <span className="text-text">{bhavan.strength} residents</span> : ''}
+                  Established: <span className="text-text">{bhawan.established}</span>
+                  {bhawan.strength ? `  ·  Strength: ` : ''}
+                  {bhawan.strength ? <span className="text-text">{bhawan.strength} residents</span> : ''}
                 </p>
               )}
             </div>
 
-            {bhavan.description ? (
+            {bhawan.description ? (
               <p className="text-sm text-text-muted leading-relaxed max-w-xl font-normal mt-2">
-                {bhavan.description}
+                {bhawan.description}
               </p>
             ) : (
               <p className="text-sm text-text-muted/50 leading-relaxed max-w-xl font-normal mt-2 italic">
-                No description available. Click below to view the official Bhavan page.
+                No description available. Click below to view the official Bhawan page.
               </p>
             )}
           </div>
 
           <div className="pt-4">
             <Link
-              href={`/bhavans/${bhavan.slug}`}
+              href={`/bhawans/${bhawan.slug}`}
               className="btn-primary px-6 py-3 text-xs tracking-wider inline-flex items-center gap-2"
             >
-              VISIT BHAVAN PAGE →
+              VISIT BHAWAN PAGE →
             </Link>
           </div>
         </div>
@@ -94,15 +94,15 @@ function BhavanDetail({ bhavan }: { bhavan: Bhavan | undefined }) {
         <div className="w-full md:w-80 lg:w-96 relative min-h-[200px] md:min-h-0 overflow-hidden bg-gradient-to-br from-brand-light to-brand-muted flex flex-col items-center justify-center p-8 text-center text-white/95">
           {!imgError ? (
             <img 
-              src={`/images/bhavans/${bhavan.slug}.webp`} 
-              alt={bhavan.name} 
+              src={`/images/bhawans/${bhawan.slug}.webp`} 
+              alt={bhawan.name} 
               className="absolute inset-0 w-full h-full object-cover"
               onError={() => setImgError(true)}
             />
           ) : (
             <>
               <span className="text-2xl mb-2">🏢</span>
-              <span className="text-sm font-semibold tracking-wide uppercase">{bhavan.name}</span>
+              <span className="text-sm font-semibold tracking-wide uppercase">{bhawan.name}</span>
               <span className="text-[10px] text-white/60 font-mono mt-1">[ Photo Coming Soon ]</span>
             </>
           )}
@@ -112,12 +112,12 @@ function BhavanDetail({ bhavan }: { bhavan: Bhavan | undefined }) {
   )
 }
 
-export default function BhavansSection({ activeTab, selectedSlug }: BhavansSectionProps) {
-  const bhavansInTab = getBhavansByCategory(activeTab)
-  const selectedBhavan = selectedSlug ? BHAVANS.find(b => b.slug === selectedSlug) : undefined
+export default function BhawansSection({ activeTab, selectedSlug }: BhawansSectionProps) {
+  const bhawansInTab = getBhawansByCategory(activeTab)
+  const selectedBhawan = selectedSlug ? BHAWANS.find(b => b.slug === selectedSlug) : undefined
 
   return (
-    <section id="our-bhavans" className="py-14 sm:py-20 bg-surface/30 border-b border-border">
+    <section id="our-bhawans" className="py-14 sm:py-20 bg-surface/30 border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
@@ -125,7 +125,7 @@ export default function BhavansSection({ activeTab, selectedSlug }: BhavansSecti
               className="text-3xl sm:text-4xl text-brand tracking-wide"
               style={{ fontFamily: 'var(--font-display)', letterSpacing: '0.08em' }}
             >
-              OUR BHAVANS
+              OUR BHAWANS
             </h2>
             <p className="text-text-muted text-sm mt-1">
               Explore the 21 residential hostels at IIT Roorkee
@@ -135,12 +135,12 @@ export default function BhavansSection({ activeTab, selectedSlug }: BhavansSecti
 
         {/* Segmented Pill Tab Selector */}
         <div className="flex flex-wrap gap-1.5 p-1 bg-surface-muted/80 border border-border/40 rounded-xl mb-8 w-full sm:w-fit shadow-xs">
-          {BHAVAN_CATEGORIES.map(cat => {
+          {BHAWAN_CATEGORIES.map(cat => {
             const isActive = cat.key === activeTab
             return (
               <Link
                 key={cat.key}
-                href={`?tab=${cat.key}#our-bhavans`}
+                href={`?tab=${cat.key}#our-bhawans`}
                 className={`px-4 sm:px-5 py-2.5 rounded-lg text-center transition-all duration-200 flex-1 sm:flex-none min-w-[125px]
                   ${isActive
                     ? 'bg-brand-light text-white shadow-xs font-semibold'
@@ -156,7 +156,7 @@ export default function BhavansSection({ activeTab, selectedSlug }: BhavansSecti
           })}
         </div>
 
-        {/* Bhavan grid */}
+        {/* Bhawan grid */}
         <div className="rounded-2xl border border-border bg-surface-raised p-6 shadow-xs mb-8">
           <div className={`grid gap-3
             ${activeTab === 'boys' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : ''}
@@ -164,17 +164,17 @@ export default function BhavansSection({ activeTab, selectedSlug }: BhavansSecti
             ${activeTab === 'married' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : ''}
             ${activeTab === 'coed' ? 'grid-cols-1 max-w-xs mx-auto' : ''}
           `}>
-            {bhavansInTab.map(bhavan => (
-              <BhavanButton
-                key={bhavan.slug}
-                bhavan={bhavan}
-                isSelected={bhavan.slug === selectedSlug}
+            {bhawansInTab.map(bhawan => (
+              <BhawanButton
+                key={bhawan.slug}
+                bhawan={bhawan}
+                isSelected={bhawan.slug === selectedSlug}
               />
             ))}
           </div>
         </div>
 
-        <BhavanDetail bhavan={selectedBhavan} />
+        <BhawanDetail bhawan={selectedBhawan} />
       </div>
     </section>
   )

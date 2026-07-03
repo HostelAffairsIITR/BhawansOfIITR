@@ -17,17 +17,17 @@ export default function CreateAnnouncementPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
-  const [bhavans, setBhavans] = useState<any[]>([])
+  const [bhawans, setBhawans] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
-  const [isBhavanScopeRestricted, setIsBhavanScopeRestricted] = useState(false)
-  const [allowedBhavanIds, setAllowedBhavanIds] = useState<number[] | null>(null)
+  const [isBhawanScopeRestricted, setIsBhawanScopeRestricted] = useState(false)
+  const [allowedBhawanIds, setAllowedBhawanIds] = useState<number[] | null>(null)
 
   // Form states
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imageUrl, setImageUrl] = useState('')
-  const [bhavanScope, setBhavanScope] = useState<string>('college-wide')
+  const [bhawanScope, setBhawanScope] = useState<string>('college-wide')
   const [allowsComments, setAllowsComments] = useState(false)
   const [expiresAt, setExpiresAt] = useState('')
 
@@ -63,32 +63,32 @@ export default function CreateAnnouncementPage() {
           return
         }
 
-        const userBhavanIds = roles
+        const userBhawanIds = roles
           ? roles.map(r => r.bhavan_id).filter((id): id is number => id !== null)
           : []
         const hasGlobalScope = isSuperAdmin || (roles ? roles.some(r => r.bhavan_id === null) : false)
 
         let allowedIds: number[] | null = null
-        if (!hasGlobalScope && userBhavanIds.length > 0) {
-          allowedIds = Array.from(new Set(userBhavanIds))
+        if (!hasGlobalScope && userBhawanIds.length > 0) {
+          allowedIds = Array.from(new Set(userBhawanIds))
         }
 
-        const { data: bhavansList } = await supabase
+        const { data: bhawansList } = await supabase
           .from('bhavans')
           .select('id, name')
           .order('name')
 
-        if (bhavansList) {
+        if (bhawansList) {
           if (allowedIds) {
-            const filtered = bhavansList.filter(b => allowedIds!.includes(b.id))
-            setBhavans(filtered)
-            setIsBhavanScopeRestricted(true)
-            setAllowedBhavanIds(allowedIds)
+            const filtered = bhawansList.filter(b => allowedIds!.includes(b.id))
+            setBhawans(filtered)
+            setIsBhawanScopeRestricted(true)
+            setAllowedBhawanIds(allowedIds)
             if (allowedIds.length > 0) {
-              setBhavanScope(allowedIds[0].toString())
+              setBhawanScope(allowedIds[0].toString())
             }
           } else {
-            setBhavans(bhavansList)
+            setBhawans(bhawansList)
           }
         }
       } catch (err) {
@@ -147,7 +147,7 @@ export default function CreateAnnouncementPage() {
         finalImageUrl = publicUrl
       }
 
-      const selectedScope = bhavanScope === 'college-wide' ? null : parseInt(bhavanScope)
+      const selectedScope = bhawanScope === 'college-wide' ? null : parseInt(bhawanScope)
 
       // 2. Insert content_item
       const { data: item, error: itemError } = await supabase
@@ -285,21 +285,21 @@ export default function CreateAnnouncementPage() {
                 </div>
               </div>
 
-              {/* Bhavan Scope */}
+              {/* Bhawan Scope */}
               <div>
                 <label className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 block" style={{ fontFamily: 'var(--font-sans)' }}>
-                  Bhavan Scope
+                  Bhawan Scope
                 </label>
                 <select
-                  value={bhavanScope}
-                  onChange={(e) => setBhavanScope(e.target.value)}
-                  disabled={isBhavanScopeRestricted && allowedBhavanIds?.length === 1}
+                  value={bhawanScope}
+                  onChange={(e) => setBhawanScope(e.target.value)}
+                  disabled={isBhawanScopeRestricted && allowedBhawanIds?.length === 1}
                   className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-text disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {!isBhavanScopeRestricted && (
+                  {!isBhawanScopeRestricted && (
                     <option value="college-wide">College-wide (All Hostels)</option>
                   )}
-                  {bhavans.map(b => (
+                  {bhawans.map(b => (
                     <option key={b.id} value={b.id}>{b.name}</option>
                   ))}
                 </select>
