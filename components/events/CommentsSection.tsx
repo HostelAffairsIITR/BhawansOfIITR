@@ -25,6 +25,7 @@ export default function CommentsSection({
   currentUserId
 }: CommentsSectionProps) {
   const supabase = createClient()
+  const [activeUserId, setActiveUserId] = useState<string | null>(currentUserId)
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [commentBody, setCommentBody] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -48,14 +49,23 @@ export default function CommentsSection({
 
   useEffect(() => {
     async function checkAdminStatus() {
-      if (!currentUserId) return
+      let resolvedUserId = activeUserId
+      if (!resolvedUserId) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          resolvedUserId = session.user.id
+          setActiveUserId(resolvedUserId)
+        }
+      }
+
+      if (!resolvedUserId) return
 
       try {
         // Check super_admin status
         const { data: profile } = await supabase
           .from('users')
           .select('is_super_admin')
-          .eq('id', currentUserId)
+          .eq('id', resolvedUserId)
           .maybeSingle()
 
         if (profile?.is_super_admin) {
@@ -68,7 +78,7 @@ export default function CommentsSection({
           .from('permissions')
           .select('role')
           .eq('content_item_id', contentItemId)
-          .eq('user_id', currentUserId)
+          .eq('user_id', resolvedUserId)
           .in('role', ['manager', 'co_manager'])
           .maybeSingle()
 
@@ -79,13 +89,12 @@ export default function CommentsSection({
         console.error('Error fetching permission for comment deleting:', err)
       }
     }
-
     checkAdminStatus()
-  }, [currentUserId, contentItemId])
+  }, [currentUserId, activeUserId, contentItemId])
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!commentBody.trim() || !currentUserId || isSubmitting) return
+    if (!commentBody.trim() || !activeUserId || isSubmitting) return
 
     setIsSubmitting(true)
     setErrorMsg('')
@@ -95,7 +104,7 @@ export default function CommentsSection({
         .from('comments')
         .insert({
           content_item_id: contentItemId,
-          user_id: currentUserId,
+          user_id: activeUserId,
           body: commentBody.trim()
         })
         .select('*, users(name, image_url)')
@@ -157,7 +166,7 @@ export default function CommentsSection({
             const authorName = c.users?.name || 'Anonymous User'
             const avatarLetter = authorName.charAt(0).toUpperCase()
             const timeStr = formatRelativeTime(c.created_at)
-            const canDelete = c.user_id === currentUserId || canDeleteAll
+            const canDelete = c.user_id === activeUserId || canDeleteAll
 
             return (
               <div key={c.id} className="flex gap-4 border border-border bg-surface-raised p-4 rounded-2xl shadow-xs">
@@ -202,7 +211,7 @@ export default function CommentsSection({
 
       {/* Comment Input */}
       <div className="border border-border bg-surface-raised p-5 rounded-2xl shadow-xs">
-        {currentUserId ? (
+        {activeUserId ? (
           <form onSubmit={handleCommentSubmit} className="flex flex-col gap-4">
             <textarea
               value={commentBody}

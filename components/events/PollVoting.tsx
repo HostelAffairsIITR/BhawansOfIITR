@@ -20,15 +20,20 @@ export default function PollVoting({
   options,
   initialVotes,
   currentUserId,
-  bhawanRestrictionMessage
+  bhavanScope,
+  bhawanName
 }: {
   itemId: string
   options: Option[]
   initialVotes: Vote[]
   currentUserId: string | null
-  bhawanRestrictionMessage?: string | null
+  bhavanScope?: number | null
+  bhawanName?: string | null
 }) {
   const supabase = createClient()
+  const [activeUserId, setActiveUserId] = useState<string | null>(currentUserId)
+  const [restrictionMessage, setRestrictionMessage] = useState<string | null>(null)
+  
   const [results, setResults] = useState<{ option_id: string | number; vote_count: number }[]>(() => {
     const initialMap: Record<string, number> = {}
     options.forEach(o => {
@@ -65,21 +70,49 @@ export default function PollVoting({
   }
 
   useEffect(() => {
-    async function checkExistingVote() {
-      // Fetch fresh results from RPC (needed for guests/guests-fallback due to RLS)
+    async function initPollVoting() {
+      // 1. Fetch fresh results from RPC (needed for guests/guests-fallback due to RLS)
       await fetchResults()
 
-      if (!currentUserId) {
+      // 2. Resolve user session client-side
+      let resolvedUserId = activeUserId
+      if (!resolvedUserId) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          resolvedUserId = session.user.id
+          setActiveUserId(resolvedUserId)
+        }
+      }
+
+      if (!resolvedUserId) {
         setCheckingVote(false)
         return
       }
 
+      // 3. Resolve resident check client-side
+      if (bhavanScope) {
+        try {
+          const { data: userData } = await supabase
+            .from('users')
+            .select('bhavan_id')
+            .eq('id', resolvedUserId)
+            .maybeSingle()
+          
+          if (userData && userData.bhavan_id !== bhavanScope) {
+            setRestrictionMessage(`This poll is only open to ${bhawanName || 'hostel'} residents`)
+          }
+        } catch (err) {
+          console.error('Error checking resident restriction:', err)
+        }
+      }
+
+      // 4. Check existing vote
       try {
         const { data: existingVote } = await supabase
           .from('poll_votes')
           .select('poll_option_id')
           .eq('content_item_id', itemId)
-          .eq('user_id', currentUserId)
+          .eq('user_id', resolvedUserId)
           .maybeSingle()
 
         if (existingVote) {
@@ -91,13 +124,13 @@ export default function PollVoting({
         setCheckingVote(false)
       }
     }
-    checkExistingVote()
-  }, [currentUserId, itemId])
+    initPollVoting()
+  }, [currentUserId, itemId, bhavanScope, bhawanName])
 
   const totalVotes = results.reduce((sum, r) => sum + Number(r.vote_count), 0)
 
   const handleVote = async (optionId: string) => {
-    if (!currentUserId || isSubmitting || bhawanRestrictionMessage) return
+    if (!activeUserId || isSubmitting || restrictionMessage) return
 
     setIsSubmitting(true)
     try {
@@ -106,7 +139,7 @@ export default function PollVoting({
         .insert({
           content_item_id: itemId,
           poll_option_id: optionId,
-          user_id: currentUserId
+          user_id: activeUserId
         })
 
       if (!error) {
@@ -132,7 +165,7 @@ export default function PollVoting({
 
   return (
     <div className="flex flex-col gap-4">
-      {(votedOptionId || !currentUserId || bhawanRestrictionMessage) ? (
+      {(votedOptionId || !activeUserId || restrictionMessage) ? (
         // Voted / Results View (show percentage bars)
         <div className="flex flex-col gap-3">
           {sortedOptions.map(opt => {
@@ -167,11 +200,11 @@ export default function PollVoting({
             <p className="text-xs font-bold text-text-muted tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>
               Total Votes: {totalVotes.toLocaleString()}
             </p>
-            {bhawanRestrictionMessage ? (
+            {restrictionMessage ? (
               <p className="text-[10px] text-red-500 font-bold tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>
-                ⚠️ {bhawanRestrictionMessage}
+                ⚠️ {restrictionMessage}
               </p>
-            ) : !currentUserId && (
+            ) : !activeUserId && (
               <p className="text-[10px] text-accent font-bold tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>
                 🔒 Login to vote
               </p>
@@ -186,7 +219,7 @@ export default function PollVoting({
               <span className="text-xs sm:text-sm font-semibold text-text text-left">{opt.option_text}</span>
               <button
                 onClick={() => handleVote(opt.id)}
-                disabled={isSubmitting || !currentUserId}
+                disabled={isSubmitting || !activeUserId}
                 className="btn-primary py-2 px-4 rounded-lg text-xs font-bold tracking-wider uppercase cursor-pointer shrink-0"
                 style={{ fontFamily: 'var(--font-sans)' }}
               >
