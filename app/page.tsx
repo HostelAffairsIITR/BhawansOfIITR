@@ -76,7 +76,7 @@ export default async function HomePage() {
       const [wardensRes, galleryRes, doswRes] = await Promise.all([
         supabase
           .from('wardens')
-          .select('*, bhawans(name)')
+          .select('*, bhawans:bhavans(name)')
           .eq('is_active', true)
           .order('display_order'),
         supabase

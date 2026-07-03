@@ -49,7 +49,7 @@ export default function AdminUserRolesPage() {
       // 2. Fetch user roles
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
-        .select('*, users!user_roles_user_id_fkey(name, enrollment_id, image_url), bhawans(name)')
+        .select('*, users!user_roles_user_id_fkey(name, enrollment_id, image_url), bhawans:bhavans(name)')
         .order('assigned_at', { ascending: false })
 
       if (rolesError) throw rolesError
@@ -148,7 +148,7 @@ export default function AdminUserRolesPage() {
       // Reload roles list
       const { data: freshRoles } = await supabase
         .from('user_roles')
-        .select('*, users!user_roles_user_id_fkey(name, enrollment_id, image_url), bhawans(name)')
+        .select('*, users!user_roles_user_id_fkey(name, enrollment_id, image_url), bhawans:bhavans(name)')
         .order('assigned_at', { ascending: false })
 
       if (freshRoles) {

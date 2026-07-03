@@ -59,7 +59,7 @@ export default function AdminWardensPage() {
       // 1. Fetch wardens
       const { data: wardensData, error: wardensError } = await supabase
         .from('wardens')
-        .select('*, bhawans(name)')
+        .select('*, bhawans:bhavans(name)')
         .order('bhavan_id, display_order')
 
       if (wardensError) throw wardensError

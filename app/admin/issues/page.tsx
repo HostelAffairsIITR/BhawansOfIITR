@@ -74,7 +74,7 @@ export default function AdminIssuesPage() {
       const [rolesRes, permsRes] = await Promise.all([
         supabase
           .from('user_roles')
-          .select('*, bhawans(name)')
+          .select('*, bhawans:bhavans(name)')
           .eq('user_id', issue.user_id),
         supabase
           .from('permissions')

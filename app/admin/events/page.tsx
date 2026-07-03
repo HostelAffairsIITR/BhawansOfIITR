@@ -37,6 +37,82 @@ interface AuditLog {
   } | null
 }
 
+function PriorityInput({ 
+  itemId, 
+  initialPriority, 
+  onSave 
+}: { 
+  itemId: string
+  initialPriority: number | null
+  onSave: (id: string, newPriority: number) => Promise<void>
+}) {
+  const [value, setValue] = useState(initialPriority ?? 0)
+  const [status, setStatus] = useState<'idle' | 'unsaved' | 'saving' | 'saved'>('idle')
+
+  useEffect(() => {
+    setValue(initialPriority ?? 0)
+    setStatus('idle')
+  }, [initialPriority])
+
+  const triggerSave = async (newValue: number) => {
+    const cleanNewVal = newValue ?? 0
+    const cleanInitVal = initialPriority ?? 0
+    if (cleanNewVal === cleanInitVal) {
+      setStatus('idle')
+      return
+    }
+    setStatus('saving')
+    try {
+      await onSave(itemId, cleanNewVal)
+      setStatus('saved')
+      setTimeout(() => setStatus('idle'), 1500)
+    } catch {
+      setStatus('unsaved')
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-1.5 justify-center">
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => {
+          const val = parseInt(e.target.value) || 0
+          setValue(val)
+          setStatus(val === (initialPriority ?? 0) ? 'idle' : 'unsaved')
+        }}
+        onBlur={() => triggerSave(value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            triggerSave(value)
+            ;(e.target as HTMLInputElement).blur()
+          }
+        }}
+        className={`w-12 text-center p-1 rounded-md border text-xs font-semibold focus:outline-none transition-all duration-200
+          ${status === 'unsaved' ? 'border-amber-500 bg-amber-500/5 focus:border-amber-600' : ''}
+          ${status === 'saving' ? 'border-brand animate-pulse bg-brand-light/5' : ''}
+          ${status === 'saved' ? 'border-green-500 bg-green-500/10 text-green-600 dark:text-green-400' : ''}
+          ${status === 'idle' ? 'border-border bg-surface focus:border-brand' : ''}
+        `}
+      />
+      {status === 'unsaved' && (
+        <button 
+          onClick={() => triggerSave(value)}
+          className="text-amber-500 hover:text-amber-600 font-bold text-[10px] uppercase tracking-wider cursor-pointer shrink-0"
+        >
+          Save
+        </button>
+      )}
+      {status === 'saving' && (
+        <span className="text-[10px] text-text-muted animate-spin">⏳</span>
+      )}
+      {status === 'saved' && (
+        <span className="text-[10px] text-green-500">✓</span>
+      )}
+    </div>
+  )
+}
+
 export default function AdminEventsPage() {
   const supabase = createClient()
   const [items, setItems] = useState<ContentItem[]>([])
@@ -58,7 +134,7 @@ export default function AdminEventsPage() {
     try {
       const { data, error } = await supabase
         .from('content_items')
-        .select('*, bhawans(name), permissions(user_id, role, users!permissions_user_id_fkey(name))')
+        .select('*, bhawans:bhavans(name), permissions(user_id, role, users!permissions_user_id_fkey(name))')
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -75,7 +151,7 @@ export default function AdminEventsPage() {
   }, [])
 
   // Priority Update
-  const handlePriorityBlur = async (id: string, newPriority: number) => {
+  const handlePrioritySave = async (id: string, newPriority: number) => {
     try {
       const { error } = await supabase
         .from('content_items')
@@ -88,6 +164,7 @@ export default function AdminEventsPage() {
     } catch (err) {
       console.error('Failed to update priority:', err)
       alert('Failed to update priority.')
+      throw err
     }
   }
 
@@ -301,11 +378,10 @@ export default function AdminEventsPage() {
                       <td className="p-4 text-text-muted font-medium">{scopeLabel}</td>
                       <td className="p-4 text-text-muted max-w-[120px] truncate" title={managers}>{managers}</td>
                       <td className="p-4">
-                        <input
-                          type="number"
-                          defaultValue={item.priority}
-                          onBlur={(e) => handlePriorityBlur(item.id, parseInt(e.target.value) || 0)}
-                          className="w-12 text-center p-1 rounded-md border border-border bg-surface text-xs font-semibold focus:outline-none focus:border-brand"
+                        <PriorityInput
+                          itemId={item.id}
+                          initialPriority={item.priority}
+                          onSave={handlePrioritySave}
                         />
                       </td>
                       <td className="p-4">

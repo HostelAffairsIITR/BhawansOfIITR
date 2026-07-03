@@ -60,11 +60,17 @@ export default function AdminGalleryPage() {
       // 2. Fetch gallery
       const { data: galleryData, error: galleryError } = await supabase
         .from('gallery_images')
-        .select('*, bhawans(name)')
+        .select('*, bhawans:bhavans(name)')
         .order('scope, bhavan_id, display_order')
 
       if (galleryError) throw galleryError
-      if (galleryData) setImages(galleryData as GalleryImage[])
+      if (galleryData) {
+        const mappedData = galleryData.map((img: any) => ({
+          ...img,
+          scope: img.scope === 'bhavan' ? 'bhawan' : img.scope
+        }))
+        setImages(mappedData as GalleryImage[])
+      }
 
       // 3. Fetch bhawans list
       const { data: bhawansData, error: bhError } = await supabase
@@ -105,6 +111,7 @@ export default function AdminGalleryPage() {
     setErrorMsg('')
 
     const scope = activeTab
+    const dbScope = scope === 'bhawan' ? 'bhavan' : scope
     const selectedBhawan = scope === 'bhawan' ? parseInt(selectedBhawanId) : null
 
     try {
@@ -112,7 +119,7 @@ export default function AdminGalleryPage() {
       const safeName = sanitizeFilename(compressed.name)
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('gallery-images')
-        .upload(`${scope}/${Date.now()}-${safeName}`, compressed)
+        .upload(`${dbScope}/${Date.now()}-${safeName}`, compressed)
 
       if (uploadError) throw uploadError
 
@@ -125,7 +132,7 @@ export default function AdminGalleryPage() {
       const { error: insertError } = await supabase
         .from('gallery_images')
         .insert({
-          scope,
+          scope: dbScope,
           bhavan_id: selectedBhawan,
           image_url: publicUrl,
           caption: caption.trim() || null,

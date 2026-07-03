@@ -66,7 +66,7 @@ export default async function BhawanPage({ params }: { params: Promise<{ slug: s
           supabase
             .from('gallery_images')
             .select('*')
-            .eq('scope', 'bhawan')
+            .eq('scope', 'bhavan')
             .eq('bhavan_id', bhawanId)
             .order('display_order'),
           supabase
@@ -80,6 +80,7 @@ export default async function BhawanPage({ params }: { params: Promise<{ slug: s
             .eq('status', 'published')
             .eq('bhavan_scope', bhawanId)
             .neq('type', 'notice')
+            .order('priority', { ascending: false, nullsFirst: false })
             .order('created_at', { ascending: false })
         ])
 
