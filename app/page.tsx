@@ -1,5 +1,5 @@
 import { BhawanCategory } from '@/lib/types'
-import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/server'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import HeroSection from '@/components/home/HeroSection'
@@ -11,25 +11,10 @@ import GallerySection from '@/components/home/GallerySection'
 import WardenSection from '@/components/home/WardenSection'
 import DOSWSection from '@/components/home/DOSWSection'
 
-interface HomePageProps {
-  searchParams: Promise<{ tab?: string; selected?: string }>
-}
-
 // ISR — revalidate every 60 seconds for events/wardens
 export const revalidate = 60
 
-export default async function HomePage({ searchParams }: HomePageProps) {
-
-//   const supabase = await createClient()
-// const { data, error } = await supabase.from('bhavans').select('*')
-// console.log('BHAWANS TEST:', data, error)
-
-
-  const params = await searchParams
-  const activeTab = (['boys', 'girls', 'married', 'coed'].includes(params.tab ?? '')
-    ? params.tab
-    : 'boys') as BhawanCategory
-  const selectedSlug = params.selected
+export default async function HomePage() {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -39,7 +24,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   if (supabaseUrl && supabaseAnonKey) {
     try {
-      const supabase = await createClient()
+      const supabase = createStaticClient()
       const { data } = await supabase
         .from('content_items')
         .select(`
@@ -87,7 +72,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   if (supabaseUrl && supabaseAnonKey) {
     try {
-      const supabase = await createClient()
+      const supabase = createStaticClient()
       const [wardensRes, galleryRes, doswRes] = await Promise.all([
         supabase
           .from('wardens')
@@ -123,7 +108,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <EventsSection events={dbEvents} votes={dbVotes} />
         <ThomsonBand />
         <CampusMapSection />
-        <BhawansSection activeTab={activeTab} selectedSlug={selectedSlug} />
+        <BhawansSection />
         <GallerySection images={dbGallery} />
         <WardenSection wardens={dbWardens} />
         <DOSWSection dosw={dbDosw} />

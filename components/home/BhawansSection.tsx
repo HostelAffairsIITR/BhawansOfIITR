@@ -4,16 +4,19 @@ import Link from 'next/link'
 import { BHAWANS, BHAWAN_CATEGORIES, getBhawansByCategory } from '@/lib/bhawans-data'
 import { BhawanCategory, Bhawan } from '@/lib/types'
 
-interface BhawansSectionProps {
-  activeTab: BhawanCategory
-  selectedSlug?: string
-}
-
-function BhawanButton({ bhawan, isSelected }: { bhawan: Bhawan; isSelected: boolean }) {
+function BhawanButton({ 
+  bhawan, 
+  isSelected, 
+  onSelect 
+}: { 
+  bhawan: Bhawan; 
+  isSelected: boolean; 
+  onSelect: () => void 
+}) {
   return (
-    <Link
-      href={`?tab=${bhawan.category}&selected=${bhawan.slug}#our-bhawans`}
-      className={`flex items-center justify-between w-full min-h-[48px] px-5 py-3 text-sm font-medium rounded-xl transition-all duration-200
+    <button
+      onClick={onSelect}
+      className={`flex items-center justify-between w-full min-h-[48px] px-5 py-3 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer
         ${isSelected
           ? 'bg-brand-light text-white border border-brand-light shadow-md scale-[1.02]'
           : 'bg-surface-raised text-text border border-border shadow-xs hover:-translate-y-0.5 hover:shadow-sm hover:border-brand-muted/40 hover:bg-surface-muted/50'
@@ -25,7 +28,7 @@ function BhawanButton({ bhawan, isSelected }: { bhawan: Bhawan; isSelected: bool
       ) : (
         <span className="text-text-muted/40 text-xs group-hover:text-text-muted">→</span>
       )}
-    </Link>
+    </button>
   )
 }
 
@@ -112,7 +115,51 @@ function BhawanDetail({ bhawan }: { bhawan: Bhawan | undefined }) {
   )
 }
 
-export default function BhawansSection({ activeTab, selectedSlug }: BhawansSectionProps) {
+export default function BhawansSection() {
+  const [activeTab, setActiveTab] = useState<BhawanCategory>('boys')
+  const [selectedSlug, setSelectedSlug] = useState<string>('azad')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const tabParam = params.get('tab')
+    const selectedParam = params.get('selected')
+
+    if (tabParam && ['boys', 'girls', 'married', 'coed'].includes(tabParam)) {
+      setActiveTab(tabParam as BhawanCategory)
+    }
+    if (selectedParam) {
+      setSelectedSlug(selectedParam)
+    } else {
+      // Auto-select first Bhawan in the active tab category on initial load
+      const bhawans = getBhawansByCategory(tabParam as BhawanCategory || 'boys')
+      if (bhawans.length > 0) {
+        setSelectedSlug(bhawans[0].slug)
+      }
+    }
+  }, [])
+
+  const handleTabChange = (category: BhawanCategory) => {
+    setActiveTab(category)
+    const bhawans = getBhawansByCategory(category)
+    if (bhawans.length > 0) {
+      setSelectedSlug(bhawans[0].slug)
+      updateUrlParams(category, bhawans[0].slug)
+    } else {
+      setSelectedSlug('')
+      updateUrlParams(category, '')
+    }
+  }
+
+  const handleBhawanSelect = (category: BhawanCategory, slug: string) => {
+    setSelectedSlug(slug)
+    updateUrlParams(category, slug)
+  }
+
+  const updateUrlParams = (tab: string, selected: string) => {
+    const newUrl = `?tab=${tab}${selected ? `&selected=${selected}` : ''}#our-bhawans`
+    window.history.replaceState(null, '', newUrl)
+  }
+
   const bhawansInTab = getBhawansByCategory(activeTab)
   const selectedBhawan = selectedSlug ? BHAWANS.find(b => b.slug === selectedSlug) : undefined
 
@@ -138,10 +185,10 @@ export default function BhawansSection({ activeTab, selectedSlug }: BhawansSecti
           {BHAWAN_CATEGORIES.map(cat => {
             const isActive = cat.key === activeTab
             return (
-              <Link
+              <button
                 key={cat.key}
-                href={`?tab=${cat.key}#our-bhawans`}
-                className={`px-4 sm:px-5 py-2.5 rounded-lg text-center transition-all duration-200 flex-1 sm:flex-none min-w-[125px]
+                onClick={() => handleTabChange(cat.key)}
+                className={`px-4 sm:px-5 py-2.5 rounded-lg text-center transition-all duration-200 flex-1 sm:flex-none min-w-[125px] cursor-pointer
                   ${isActive
                     ? 'bg-brand-light text-white shadow-xs font-semibold'
                     : 'text-text-muted hover:text-text hover:bg-surface-raised/40'
@@ -151,7 +198,7 @@ export default function BhawansSection({ activeTab, selectedSlug }: BhawansSecti
                 <span className={`text-[10px] mt-0.5 block ${isActive ? 'text-white/85' : 'text-text-muted/75'}`}>
                   {cat.count} {cat.count === 1 ? 'hostel' : 'hostels'}
                 </span>
-              </Link>
+              </button>
             )
           })}
         </div>
@@ -169,6 +216,7 @@ export default function BhawansSection({ activeTab, selectedSlug }: BhawansSecti
                 key={bhawan.slug}
                 bhawan={bhawan}
                 isSelected={bhawan.slug === selectedSlug}
+                onSelect={() => handleBhawanSelect(bhawan.category, bhawan.slug)}
               />
             ))}
           </div>

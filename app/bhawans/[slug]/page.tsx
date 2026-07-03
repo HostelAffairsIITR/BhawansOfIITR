@@ -8,7 +8,7 @@ import AmenitiesSection from '@/components/bhawan/AmenitiesSection'
 import GallerySection from '@/components/home/GallerySection'
 import CouncilSection from '@/components/bhawan/CouncilSection'
 import EmergencySection from '@/components/bhawan/EmergencySection'
-import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/server'
 import BhawanEventsList from '@/components/bhawan/BhawanEventsList'
 
 export const revalidate = 60
@@ -44,7 +44,7 @@ export default async function BhawanPage({ params }: { params: Promise<{ slug: s
 
   if (supabaseUrl && supabaseAnonKey) {
     try {
-      const supabase = await createClient()
+      const supabase = createStaticClient()
       const { data: bhawanData } = await supabase
         .from('bhavans')
         .select('id, name')

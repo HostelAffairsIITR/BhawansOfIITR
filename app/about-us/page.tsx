@@ -1,6 +1,6 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/server'
 
 interface SupabaseMember {
   id: number
@@ -26,7 +26,7 @@ export default async function AboutUsPage() {
 
   if (supabaseUrl && supabaseAnonKey) {
     try {
-      const supabase = await createClient()
+      const supabase = createStaticClient()
       
       // 1. Fetch current term
       const { data: currentTerm } = await supabase

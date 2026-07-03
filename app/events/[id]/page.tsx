@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import { createClient } from '@/lib/supabase/server'
+import { createStaticClient } from '@/lib/supabase/server'
 import ReactMarkdown from 'react-markdown'
 import { getBhawanBySlug, BHAWANS } from '@/lib/bhawans-data'
 import PollVoting from '@/components/events/PollVoting'
@@ -16,7 +16,7 @@ interface EventDetailPageProps {
 
 export async function generateMetadata({ params }: EventDetailPageProps): Promise<Metadata> {
   const { id } = await params
-  const supabase = await createClient()
+  const supabase = createStaticClient()
 
   const { data: item } = await supabase
     .from('content_items')
@@ -57,11 +57,8 @@ export async function generateMetadata({ params }: EventDetailPageProps): Promis
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { id } = await params
-  const supabase = await createClient()
-
-  // Get current user session
-  const { data: { user } } = await supabase.auth.getUser()
-  const currentUserId = user?.id || null
+  const supabase = createStaticClient()
+  const currentUserId = null
 
   // 1. Fetch main content item
   const { data: item } = await supabase
@@ -135,19 +132,6 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     bhawanName = bhawanData?.name || getBhawanBySlug(String(item.bhavan_scope))?.name || item.bhavan_scope
     selectedBhawan = BHAWANS.find(b => b.name === bhawanName || b.slug === String(item.bhavan_scope))
 
-    // Check voting/access restrictions for bhawan-scoped polls
-    if (currentUserId && item.type === 'poll') {
-      const { data: userData } = await supabase
-        .from('users')
-        .select('bhavan_id')
-        .eq('id', currentUserId)
-        .maybeSingle()
-      
-      const userBhawanId = userData?.bhavan_id || null
-      if (userBhawanId !== item.bhavan_scope) {
-        bhawanRestrictionMessage = `This poll is only open to ${bhawanName} residents`
-      }
-    }
   }
 
   // Resolve author (from permissions / fallback)
@@ -184,7 +168,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   options={item.poll_options || []} 
                   initialVotes={votes} 
                   currentUserId={currentUserId} 
-                  bhawanRestrictionMessage={bhawanRestrictionMessage} 
+                  bhavanScope={item.bhavan_scope}
+                  bhawanName={bhawanName}
                 />
               </div>
             )}
@@ -283,4 +268,16 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
       <Footer />
     </>
   )
+}
+
+export const revalidate = 60
+
+export async function generateStaticParams() {
+  const supabase = createStaticClient()
+  const { data: items } = await supabase
+    .from('content_items')
+    .select('id')
+    .eq('status', 'published')
+  
+  return (items || []).map(item => ({ id: String(item.id) }))
 }
