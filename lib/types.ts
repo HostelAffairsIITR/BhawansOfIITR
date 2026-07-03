@@ -6,8 +6,8 @@ export interface BaseEvent {
   id: string
   type: EventType
   title: string
-  bhavanSlug?: string   // undefined = inter-bhavan
-  bhavanName?: string
+  bhawanSlug?: string   // undefined = inter-bhawan
+  bhawanName?: string
   createdAt: string
   status: EventStatus
 }
@@ -51,7 +51,7 @@ export type NoticePriority = 'normal' | 'urgent'
 
 export interface Notice {
   id: string
-  bhavanSlug: string
+  bhawanSlug: string
   title: string
   body: string
   postedAt: string
@@ -59,34 +59,34 @@ export interface Notice {
   attachmentUrl?: string
 }
 
-// ─── BHAVAN TYPES ────────────────────────────────────────────────────────────
-export type BhavanCategory = 'boys' | 'girls' | 'married' | 'coed'
+// ─── BHAWAN TYPES ────────────────────────────────────────────────────────────
+export type BhawanCategory = 'boys' | 'girls' | 'married' | 'coed'
 
-export interface BhavanTheme {
+export interface BhawanTheme {
   primary: string        // e.g. "#C2410C" (orange for Vivekananda)
   primaryLight: string   // e.g. "#FED7AA"
   primaryDark: string    // e.g. "#7C2D12"
 }
 
-export interface Bhavan {
+export interface Bhawan {
   slug: string
   name: string
   fullName: string
-  category: BhavanCategory
+  category: BhawanCategory
   established?: string
   strength?: number
   wardenName?: string
   wardenEmail?: string
   coverImage?: string
-  theme: BhavanTheme
+  theme: BhawanTheme
   description?: string
 }
 
 // ─── WARDEN TYPES ────────────────────────────────────────────────────────────
 export interface Warden {
   name: string
-  bhavanName: string
-  bhavanSlug: string
+  bhawanName: string
+  bhawanSlug: string
   email?: string
   phone?: string
   photoUrl?: string
@@ -97,14 +97,14 @@ export interface GalleryImage {
   id: string
   url: string
   caption?: string
-  bhavanSlug?: string
+  bhawanSlug?: string
 }
 
 // ─── COUNCIL MEMBER ──────────────────────────────────────────────────────────
 export interface CouncilMember {
   name: string
   role: string
-  bhavanSlug: string
+  bhawanSlug: string
   year?: string
   photoUrl?: string
   email?: string

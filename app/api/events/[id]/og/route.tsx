@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { createClient } from '@/lib/supabase/server'
-import { BHAVANS } from '@/lib/bhavans-data'
+import { BHAWANS } from '@/lib/bhawans-data'
 import QRCode from 'qrcode'
 
 export const runtime = 'edge'
@@ -32,24 +32,24 @@ export async function GET(request: Request, { params }: RouteParams) {
       return new Response('Not Found', { status: 404 })
     }
 
-    // 2. Fetch bhavan details if scoped
-    let bhavanObj: any = null
+    // 2. Fetch bhawan details if scoped
+    let bhawanObj: any = null
     if (item.bhavan_scope) {
-      const { data: bhavanData } = await supabase
+      const { data: bhawanData } = await supabase
         .from('bhavans')
         .select('name')
         .eq('id', item.bhavan_scope)
         .single()
       
-      if (bhavanData) {
-        bhavanObj = BHAVANS.find(b => b.name === bhavanData.name || b.slug === String(item.bhavan_scope))
+      if (bhawanData) {
+        bhawanObj = BHAWANS.find(b => b.name === bhawanData.name || b.slug === String(item.bhavan_scope))
       }
     }
 
     // 3. Resolve theme colors
-    const primaryColor = bhavanObj?.theme?.primary || '#ea580c'
-    const secondaryColor = bhavanObj?.theme?.primaryDark || '#7c2d12'
-    const primaryLight = bhavanObj?.theme?.primaryLight || '#ffedd5'
+    const primaryColor = bhawanObj?.theme?.primary || '#ea580c'
+    const secondaryColor = bhawanObj?.theme?.primaryDark || '#7c2d12'
+    const primaryLight = bhawanObj?.theme?.primaryLight || '#ffedd5'
 
     // 4. Generate QR code as base64 data URL
     const url = new URL(request.url)
@@ -208,7 +208,7 @@ export async function GET(request: Request, { params }: RouteParams) {
                 boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)'
               }}
             >
-              {bhavanObj ? `🏛️ ${bhavanObj.name.replace(' Bhawan', '')}` : '🌐 College-Wide'}
+              {bhawanObj ? `🏛️ ${bhawanObj.name.replace(' Bhawan', '')}` : '🌐 College-Wide'}
             </div>
           </div>
 
@@ -430,10 +430,10 @@ export async function GET(request: Request, { params }: RouteParams) {
                 Check it out on
               </span>
               <span style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', letterSpacing: '0.05em', marginBottom: '4px' }}>
-                {bhavanObj ? `${bhavanObj.name.toUpperCase()} FEED` : 'COLLEGE EVENTS'}
+                {bhawanObj ? `${bhawanObj.name.toUpperCase()} FEED` : 'COLLEGE EVENTS'}
               </span>
               <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 700 }}>
-                bhavans.iitr.ac.in/events/{String(id).slice(0, 8)}
+                bhawans.iitr.ac.in/events/{String(id).slice(0, 8)}
               </span>
             </div>
 

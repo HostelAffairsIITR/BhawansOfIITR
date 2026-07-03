@@ -122,3 +122,13 @@ The portal relies on the following relational structure in Supabase:
   ```bash
   npx tsc --noEmit
   ```
+
+---
+
+## 6. Spelling Standards (Bhavan vs. Bhawan)
+- **Standard UI Spelling**: Under IIT Roorkee convention, use the spelling **"Bhawan"** (singular) and **"Bhawans"** (plural) for all user-facing labels, page titles, navigation links, layout routes, and components.
+- **Folder Directories**: Component files reside in `components/bhawan/` and dynamic routing paths reside in `app/bhawans/[slug]/page.tsx`.
+- **Critical Exclusions (Do Not Rename)**:
+  1. **Supabase Database Schemas**: Keep database queries and fields using `'bhavans'` (e.g., `.from('bhavans')`), `bhavan_scope`, `bhavan_slug`, and `bhavan_id` to prevent breaking table configurations and foreign keys.
+  2. **Site Title Brand**: Keep the main header branding title `"BHAVANS OF IITR"` intact.
+

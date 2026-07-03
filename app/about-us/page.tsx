@@ -62,7 +62,7 @@ export default async function AboutUsPage() {
   const secretaryImage = secretary?.image_url || null
   const secretaryInitials = secretaryName.split(' ').map(n => n[0]).join('')
   const secretaryEmail = 'has@iitr.ac.in'
-  const secretaryBio = 'Responsible for leading student residential policies, mess sanitation, and inter-bhavan sports/cultural leagues across the campus hostels.'
+  const secretaryBio = 'Responsible for leading student residential policies, mess sanitation, and inter-bhawan sports/cultural leagues across the campus hostels.'
 
   // 4. Filter out secretary and group remaining by vertical
   const otherMembers = haMembers.filter(m => m.id !== secretary?.id)

@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { PollCard, BlogCard, AnnouncementCard, DbContentItem } from '@/components/home/EventsSection'
 import ShareModal from '@/components/events/ShareModal'
-import { getBhavanBySlug } from '@/lib/bhavans-data'
+import { getBhawanBySlug } from '@/lib/bhawans-data'
 
 export default function EventsGrid({ 
   events, 
@@ -19,8 +19,8 @@ export default function EventsGrid({
     setActiveShareItem(item)
   }
 
-  const selectedBhavan = activeShareItem?.bhavan_scope 
-    ? getBhavanBySlug(activeShareItem.bhavan_scope)
+  const selectedBhawan = activeShareItem?.bhavan_scope 
+    ? getBhawanBySlug(activeShareItem.bhavan_scope)
     : undefined
 
   return (
@@ -56,7 +56,7 @@ export default function EventsGrid({
           isOpen={!!activeShareItem} 
           onClose={() => setActiveShareItem(null)} 
           item={activeShareItem}
-          bhavan={selectedBhavan}
+          bhawan={selectedBhawan}
         />
       )}
     </>

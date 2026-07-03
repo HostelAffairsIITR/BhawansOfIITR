@@ -1,6 +1,6 @@
-import { Bhavan, BhavanCategory } from './types'
+import { Bhawan, BhawanCategory } from './types'
 
-export const BHAVANS: Bhavan[] = [
+export const BHAWANS: Bhawan[] = [
   // BOYS
   {
     slug: 'azad',
@@ -108,7 +108,7 @@ export const BHAVANS: Bhavan[] = [
     fullName: 'Vivekananda Bhawan',
     category: 'boys',
     theme: { primary: '#c2410c', primaryLight: '#fed7aa', primaryDark: '#7c2d12' },
-    description: 'One of the oldest and most spirited bhavans of IIT Roorkee, known for its strong community and cultural vibrancy.',
+    description: 'One of the oldest and most spirited bhawans of IIT Roorkee, known for its strong community and cultural vibrancy.',
     strength: 320,
     established: '1958'
   },
@@ -217,18 +217,18 @@ export const BHAVANS: Bhavan[] = [
   }
 ]
 
-export const BHAVAN_CATEGORIES: { key: BhavanCategory; label: string; count: number }[] = [
+export const BHAWAN_CATEGORIES: { key: BhawanCategory; label: string; count: number }[] = [
   { key: 'boys', label: 'Boys Hostels', count: 11 },
   { key: 'girls', label: 'Girls Hostels', count: 4 },
   { key: 'married', label: 'Married Hostels', count: 5 },
   { key: 'coed', label: 'Co-ed Hostels', count: 1 }
 ]
 
-export function getBhavanBySlug(slug: string): Bhavan | undefined {
+export function getBhawanBySlug(slug: string): Bhawan | undefined {
   const targetSlug = slug === 'vivekanand' ? 'vivekananda' : slug
-  return BHAVANS.find(b => b.slug === targetSlug)
+  return BHAWANS.find(b => b.slug === targetSlug)
 }
 
-export function getBhavansByCategory(category: BhavanCategory): Bhavan[] {
-  return BHAVANS.filter(b => b.category === category)
+export function getBhawansByCategory(category: BhawanCategory): Bhawan[] {
+  return BHAWANS.filter(b => b.category === category)
 }

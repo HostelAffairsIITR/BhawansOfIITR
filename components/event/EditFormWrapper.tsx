@@ -14,11 +14,11 @@ function sanitizeFilename(filename: string): string {
 
 interface EditFormWrapperProps {
   item: any
-  bhavans: any[]
+  bhawans: any[]
   userId: string
 }
 
-export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapperProps) {
+export default function EditFormWrapper({ item, bhawans, userId }: EditFormWrapperProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -26,13 +26,13 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
   const [errorMsg, setErrorMsg] = useState('')
 
   // Restricted scope states
-  const [filteredBhavans, setFilteredBhavans] = useState<any[]>(bhavans)
-  const [isBhavanScopeRestricted, setIsBhavanScopeRestricted] = useState(false)
-  const [allowedBhavanIds, setAllowedBhavanIds] = useState<number[] | null>(null)
+  const [filteredBhawans, setFilteredBhawans] = useState<any[]>(bhawans)
+  const [isBhawanScopeRestricted, setIsBhawanScopeRestricted] = useState(false)
+  const [allowedBhawanIds, setAllowedBhawanIds] = useState<number[] | null>(null)
 
   // Shared form fields
   const [title, setTitle] = useState(item.title || '')
-  const [bhavanScope, setBhavanScope] = useState<string>(
+  const [bhawanScope, setBhawanScope] = useState<string>(
     item.bhavan_scope ? item.bhavan_scope.toString() : 'college-wide'
   )
   const [allowsComments, setAllowsComments] = useState(!!item.allows_comments)
@@ -52,21 +52,21 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
           .eq('user_id', userId)
 
         const isSuperAdmin = profile?.is_super_admin || false
-        const userBhavanIds = roles
+        const userBhawanIds = roles
           ? roles.map(r => r.bhavan_id).filter((id): id is number => id !== null)
           : []
         const hasGlobalScope = isSuperAdmin || (roles ? roles.some(r => r.bhavan_id === null) : false)
 
-        if (!hasGlobalScope && userBhavanIds.length > 0) {
-          const allowedIds = Array.from(new Set(userBhavanIds))
-          setIsBhavanScopeRestricted(true)
-          setAllowedBhavanIds(allowedIds)
-          const filtered = bhavans.filter(b => allowedIds.includes(b.id))
-          setFilteredBhavans(filtered)
+        if (!hasGlobalScope && userBhawanIds.length > 0) {
+          const allowedIds = Array.from(new Set(userBhawanIds))
+          setIsBhawanScopeRestricted(true)
+          setAllowedBhawanIds(allowedIds)
+          const filtered = bhawans.filter(b => allowedIds.includes(b.id))
+          setFilteredBhawans(filtered)
           
           const currentScopeNum = item.bhavan_scope ? parseInt(item.bhavan_scope.toString()) : null
           if (!currentScopeNum || !allowedIds.includes(currentScopeNum)) {
-            setBhavanScope(allowedIds[0].toString())
+            setBhawanScope(allowedIds[0].toString())
           }
         }
       } catch (err) {
@@ -74,7 +74,7 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
       }
     }
     checkUserScope()
-  }, [userId, bhavans, item.bhavan_scope])
+  }, [userId, bhawans, item.bhavan_scope])
 
   // 1. Poll specific state
   const sortedInitialOptions = item.poll_options
@@ -209,7 +209,7 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
     setSubmitting(true)
     setErrorMsg('')
 
-    const selectedScope = bhavanScope === 'college-wide' ? null : parseInt(bhavanScope)
+    const selectedScope = bhawanScope === 'college-wide' ? null : parseInt(bhawanScope)
 
     try {
       if (item.type === 'poll') {
@@ -367,7 +367,7 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
       
       else if (item.type === 'notice') {
         if (!noticeBody.trim()) throw new Error('Body content is required.')
-        if (bhavanScope === 'college-wide') throw new Error('Notices require a specific Bhavan scope.')
+        if (bhawanScope === 'college-wide') throw new Error('Notices require a specific Bhawan scope.')
 
         // 1. Delete removed notice attachments from database + storage
         for (const id of removedAttachmentIds) {
@@ -852,22 +852,22 @@ export default function EditFormWrapper({ item, bhavans, userId }: EditFormWrapp
             </>
           )}
 
-          {/* Bhavan Scope Selector */}
+          {/* Bhawan Scope Selector */}
           {item.type !== 'blog' && (
             <div>
               <label className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 block" style={{ fontFamily: 'var(--font-sans)' }}>
-                Bhavan Scope {item.type === 'notice' ? '*' : ''}
+                Bhawan Scope {item.type === 'notice' ? '*' : ''}
               </label>
               <select
-                value={bhavanScope}
-                onChange={(e) => setBhavanScope(e.target.value)}
-                disabled={isBhavanScopeRestricted && allowedBhavanIds?.length === 1}
+                value={bhawanScope}
+                onChange={(e) => setBhawanScope(e.target.value)}
+                disabled={isBhawanScopeRestricted && allowedBhawanIds?.length === 1}
                 className="w-full text-xs sm:text-sm p-4 rounded-xl border border-border bg-surface focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-text disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {item.type !== 'notice' && !isBhavanScopeRestricted && (
+                {item.type !== 'notice' && !isBhawanScopeRestricted && (
                   <option value="college-wide">College-wide (All Hostels)</option>
                 )}
-                {filteredBhavans.map(b => (
+                {filteredBhawans.map(b => (
                   <option key={b.id} value={b.id}>{b.name}</option>
                 ))}
               </select>

@@ -3,7 +3,7 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createClient } from '@/lib/supabase/server'
 import ReactMarkdown from 'react-markdown'
-import { getBhavanBySlug, BHAVANS } from '@/lib/bhavans-data'
+import { getBhawanBySlug, BHAWANS } from '@/lib/bhawans-data'
 import PollVoting from '@/components/events/PollVoting'
 import CommentsSection from '@/components/events/CommentsSection'
 import ShareSection from '@/components/event/ShareSection'
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: EventDetailPageProps): Promis
     title: `${item.title} | IITR Hostel Council`,
     openGraph: {
       title: item.title,
-      description: `View this ${item.type} on the IITR Bhavans portal.`,
+      description: `View this ${item.type} on the IITR Bhawans portal.`,
       images: [
         {
           url: imageUrl,
@@ -120,22 +120,22 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     }
   }
 
-  // 5. Fetch bhavan name if scoped notice
-  let bhavanName: string | null = null
-  let bhavanRestrictionMessage: string | null = null
-  let selectedBhavan: any = null
+  // 5. Fetch bhawan name if scoped notice
+  let bhawanName: string | null = null
+  let bhawanRestrictionMessage: string | null = null
+  let selectedBhawan: any = null
   if (item.bhavan_scope) {
-    const { data: bhavanData } = await supabase
+    const { data: bhawanData } = await supabase
       .from('bhavans')
       .select('name')
       .eq('id', item.bhavan_scope)
       .single()
     
     // Fall back to lookup from static data if ID matches index mapping
-    bhavanName = bhavanData?.name || getBhavanBySlug(String(item.bhavan_scope))?.name || item.bhavan_scope
-    selectedBhavan = BHAVANS.find(b => b.name === bhavanName || b.slug === String(item.bhavan_scope))
+    bhawanName = bhawanData?.name || getBhawanBySlug(String(item.bhavan_scope))?.name || item.bhavan_scope
+    selectedBhawan = BHAWANS.find(b => b.name === bhawanName || b.slug === String(item.bhavan_scope))
 
-    // Check voting/access restrictions for bhavan-scoped polls
+    // Check voting/access restrictions for bhawan-scoped polls
     if (currentUserId && item.type === 'poll') {
       const { data: userData } = await supabase
         .from('users')
@@ -143,9 +143,9 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
         .eq('id', currentUserId)
         .maybeSingle()
       
-      const userBhavanId = userData?.bhavan_id || null
-      if (userBhavanId !== item.bhavan_scope) {
-        bhavanRestrictionMessage = `This poll is only open to ${bhavanName} residents`
+      const userBhawanId = userData?.bhavan_id || null
+      if (userBhawanId !== item.bhavan_scope) {
+        bhawanRestrictionMessage = `This poll is only open to ${bhawanName} residents`
       }
     }
   }
@@ -184,7 +184,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   options={item.poll_options || []} 
                   initialVotes={votes} 
                   currentUserId={currentUserId} 
-                  bhavanRestrictionMessage={bhavanRestrictionMessage} 
+                  bhawanRestrictionMessage={bhawanRestrictionMessage} 
                 />
               </div>
             )}
@@ -235,9 +235,9 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               <div>
                 <div className="flex flex-wrap items-center gap-3 mb-4">
                   <span className="inline-block bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>NOTICE</span>
-                  {bhavanName && (
+                  {bhawanName && (
                     <span className="inline-block bg-surface border border-border text-[10px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>
-                      🏢 {bhavanName}
+                      🏢 {bhawanName}
                     </span>
                   )}
                 </div>
@@ -271,7 +271,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
           {/* Share Buttons */}
           {item.allows_share && item.type !== 'notice' && (
-            <ShareSection item={item} bhavan={selectedBhavan} />
+            <ShareSection item={item} bhawan={selectedBhawan} />
           )}
 
           {/* Comments Section */}

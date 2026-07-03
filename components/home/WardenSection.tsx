@@ -1,4 +1,4 @@
-import { BHAVANS } from '@/lib/bhavans-data'
+import { BHAWANS } from '@/lib/bhawans-data'
 import Link from 'next/link'
 
 interface SupabaseWarden {
@@ -9,7 +9,7 @@ interface SupabaseWarden {
   bhavan_id: number | null
   is_active: boolean
   display_order: number
-  bhavans?: {
+  bhawans?: {
     name: string
   } | null
 }
@@ -17,9 +17,9 @@ interface SupabaseWarden {
 export default function WardenSection({ wardens }: { wardens: SupabaseWarden[] }) {
   if (!wardens || wardens.length === 0) return null
 
-  const getBhavanSlugByName = (bhavanName: string) => {
-    const nameClean = bhavanName.toLowerCase().replace(' bhawan', '').replace(' hostel', '').replace(' house', '').trim()
-    const found = BHAVANS.find(b => 
+  const getBhawanSlugByName = (bhawanName: string) => {
+    const nameClean = bhawanName.toLowerCase().replace(' bhawan', '').replace(' hostel', '').replace(' house', '').trim()
+    const found = BHAWANS.find(b => 
       b.name.toLowerCase().replace(' bhawan', '').replace(' hostel', '').replace(' house', '').trim() === nameClean
     )
     return found?.slug || nameClean
@@ -33,7 +33,7 @@ export default function WardenSection({ wardens }: { wardens: SupabaseWarden[] }
             className="text-3xl sm:text-4xl text-brand tracking-wide"
             style={{ fontFamily: 'var(--font-display)', letterSpacing: '0.08em' }}
           >
-            BHAVAN WARDENS
+            BHAWAN WARDENS
           </h2>
           <p className="text-text-muted text-sm mt-1">
             Faculty wardens in charge of residential administration
@@ -42,14 +42,14 @@ export default function WardenSection({ wardens }: { wardens: SupabaseWarden[] }
 
         <div className="flex flex-wrap gap-6 justify-start">
           {wardens.map(warden => {
-            const bhName = warden.bhavans?.name || ''
-            const slug = getBhavanSlugByName(bhName)
+            const bhName = warden.bhawans?.name || ''
+            const slug = getBhawanSlugByName(bhName)
             const avatarLetter = warden.name.split(' ').pop()?.[0] || 'W'
 
             return (
               <Link
                 key={warden.id}
-                href={`/bhavans/${slug}`}
+                href={`/bhawans/${slug}`}
                 className="flex flex-col items-center gap-3 group w-28 sm:w-32 hover:-translate-y-1 transition-all duration-200"
               >
                 {/* Avatar circle */}

@@ -59,7 +59,7 @@ export default function DOSWSection({ dosw }: DOSWProps) {
           <div className="flex-1 flex flex-col justify-center">
             <span className="text-[5rem] leading-none text-brand/10 font-serif select-none -mb-8 -ml-2">&ldquo;</span>
             <blockquote className="text-text font-medium text-sm sm:text-base leading-relaxed italic" style={{ fontFamily: 'var(--font-sans)' }}>
-              Welcome to the Bhavans of IIT Roorkee — the heart of campus life. Our residential halls
+              Welcome to the Bhawans of IIT Roorkee — the heart of campus life. Our residential halls
               are more than places to sleep; they are communities that shape leaders, athletes, and
               lifelong friendships. The spirit of camaraderie that flows through each bhawan is what
               makes IIT Roorkee hostels truly special. I invite you to explore, engage, and become part of

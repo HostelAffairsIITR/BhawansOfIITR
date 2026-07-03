@@ -14,12 +14,12 @@ interface UserRole {
     enrollment_id: string
     image_url: string | null
   } | null
-  bhavans?: {
+  bhawans?: {
     name: string
   } | null
 }
 
-interface Bhavan {
+interface Bhawan {
   id: number
   name: string
 }
@@ -27,13 +27,13 @@ interface Bhavan {
 export default function AdminUserRolesPage() {
   const supabase = createClient()
   const [roles, setRoles] = useState<UserRole[]>([])
-  const [bhavans, setBhavans] = useState<Bhavan[]>([])
+  const [bhawans, setBhawans] = useState<Bhawan[]>([])
   const [loading, setLoading] = useState(true)
 
   // Form State
   const [enrollmentId, setEnrollmentId] = useState('')
   const [selectedRole, setSelectedRole] = useState('manager')
-  const [selectedBhavanId, setSelectedBhavanId] = useState('')
+  const [selectedBhawanId, setSelectedBhawanId] = useState('')
   const [submitLoading, setSubmitLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
@@ -49,20 +49,20 @@ export default function AdminUserRolesPage() {
       // 2. Fetch user roles
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
-        .select('*, users!user_roles_user_id_fkey(name, enrollment_id, image_url), bhavans(name)')
+        .select('*, users!user_roles_user_id_fkey(name, enrollment_id, image_url), bhawans(name)')
         .order('assigned_at', { ascending: false })
 
       if (rolesError) throw rolesError
       if (rolesData) setRoles(rolesData as UserRole[])
 
-      // 3. Fetch bhavans list
-      const { data: bhavansData, error: bhError } = await supabase
+      // 3. Fetch bhawans list
+      const { data: bhawansData, error: bhError } = await supabase
         .from('bhavans')
         .select('id, name')
         .order('name')
 
       if (bhError) throw bhError
-      if (bhavansData) setBhavans(bhavansData as Bhavan[])
+      if (bhawansData) setBhawans(bhawansData as Bhawan[])
     } catch (err) {
       console.error('Failed to load user roles data:', err)
     } finally {
@@ -123,7 +123,7 @@ export default function AdminUserRolesPage() {
         throw new Error(`User with Enrollment ID "${enrollmentId.toUpperCase()}" not found. Make sure they have logged in at least once.`)
       }
 
-      const bhavanId = selectedBhavanId ? parseInt(selectedBhavanId) : null
+      const bhawanId = selectedBhawanId ? parseInt(selectedBhawanId) : null
 
       // 2. Insert into user_roles
       const { error: insertError } = await supabase
@@ -131,7 +131,7 @@ export default function AdminUserRolesPage() {
         .insert({
           user_id: user.id,
           role: selectedRole,
-          bhavan_id: bhavanId,
+          bhavan_id: bhawanId,
           assigned_by: currentUserId
         })
 
@@ -148,7 +148,7 @@ export default function AdminUserRolesPage() {
       // Reload roles list
       const { data: freshRoles } = await supabase
         .from('user_roles')
-        .select('*, users!user_roles_user_id_fkey(name, enrollment_id, image_url), bhavans(name)')
+        .select('*, users!user_roles_user_id_fkey(name, enrollment_id, image_url), bhawans(name)')
         .order('assigned_at', { ascending: false })
 
       if (freshRoles) {
@@ -156,7 +156,7 @@ export default function AdminUserRolesPage() {
       }
 
       setEnrollmentId('')
-      setSelectedBhavanId('')
+      setSelectedBhawanId('')
     } catch (err: any) {
       console.error('Error assigning role:', err)
       setErrorMsg(err.message || 'An error occurred during role assignment.')
@@ -220,15 +220,15 @@ export default function AdminUserRolesPage() {
 
           <div>
             <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2 block" style={{ fontFamily: 'var(--font-mono)' }}>
-              Bhavan Scope (Optional)
+              Bhawan Scope (Optional)
             </label>
             <select
-              value={selectedBhavanId}
-              onChange={(e) => setSelectedBhavanId(e.target.value)}
+              value={selectedBhawanId}
+              onChange={(e) => setSelectedBhawanId(e.target.value)}
               className="w-full text-xs p-3.5 rounded-xl border border-border bg-surface text-text"
             >
               <option value="">College-wide (All Hostels)</option>
-              {bhavans.map(bh => (
+              {bhawans.map(bh => (
                 <option key={bh.id} value={bh.id}>{bh.name}</option>
               ))}
             </select>
@@ -258,7 +258,7 @@ export default function AdminUserRolesPage() {
                 <th className="p-4">Name</th>
                 <th className="p-4">Enrollment ID</th>
                 <th className="p-4">Role</th>
-                <th className="p-4">Bhavan Scope</th>
+                <th className="p-4">Bhawan Scope</th>
                 <th className="p-4">Assigned At</th>
                 <th className="p-4">Actions</th>
               </tr>
@@ -267,7 +267,7 @@ export default function AdminUserRolesPage() {
               {roles.map(role => {
                 const name = role.users?.name || 'Unknown User'
                 const enrol = role.users?.enrollment_id || 'N/A'
-                const scope = role.bhavan_id ? role.bhavans?.name : 'College-wide'
+                const scope = role.bhavan_id ? role.bhawans?.name : 'College-wide'
                 const date = new Date(role.assigned_at).toLocaleDateString()
 
                 return (

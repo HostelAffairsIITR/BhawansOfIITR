@@ -20,13 +20,13 @@ export default function PollVoting({
   options,
   initialVotes,
   currentUserId,
-  bhavanRestrictionMessage
+  bhawanRestrictionMessage
 }: {
   itemId: string
   options: Option[]
   initialVotes: Vote[]
   currentUserId: string | null
-  bhavanRestrictionMessage?: string | null
+  bhawanRestrictionMessage?: string | null
 }) {
   const supabase = createClient()
   const [results, setResults] = useState<{ option_id: string | number; vote_count: number }[]>(() => {
@@ -97,7 +97,7 @@ export default function PollVoting({
   const totalVotes = results.reduce((sum, r) => sum + Number(r.vote_count), 0)
 
   const handleVote = async (optionId: string) => {
-    if (!currentUserId || isSubmitting || bhavanRestrictionMessage) return
+    if (!currentUserId || isSubmitting || bhawanRestrictionMessage) return
 
     setIsSubmitting(true)
     try {
@@ -132,7 +132,7 @@ export default function PollVoting({
 
   return (
     <div className="flex flex-col gap-4">
-      {(votedOptionId || !currentUserId || bhavanRestrictionMessage) ? (
+      {(votedOptionId || !currentUserId || bhawanRestrictionMessage) ? (
         // Voted / Results View (show percentage bars)
         <div className="flex flex-col gap-3">
           {sortedOptions.map(opt => {
@@ -167,9 +167,9 @@ export default function PollVoting({
             <p className="text-xs font-bold text-text-muted tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>
               Total Votes: {totalVotes.toLocaleString()}
             </p>
-            {bhavanRestrictionMessage ? (
+            {bhawanRestrictionMessage ? (
               <p className="text-[10px] text-red-500 font-bold tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>
-                ⚠️ {bhavanRestrictionMessage}
+                ⚠️ {bhawanRestrictionMessage}
               </p>
             ) : !currentUserId && (
               <p className="text-[10px] text-accent font-bold tracking-wider uppercase" style={{ fontFamily: 'var(--font-mono)' }}>

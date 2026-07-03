@@ -1,4 +1,4 @@
-import { BhavanTheme } from '@/lib/types'
+import { BhawanTheme } from '@/lib/types'
 
 export interface DbNoticeItem {
   id: string
@@ -24,7 +24,7 @@ export interface DbNoticeItem {
   } | null
 }
 
-function NoticeCard({ item, theme }: { item: DbNoticeItem; theme: BhavanTheme }) {
+function NoticeCard({ item, theme }: { item: DbNoticeItem; theme: BhawanTheme }) {
   const isUrgent = item.priority === true || item.priority === 'true' || item.priority === 'urgent'
   const date = new Date(item.created_at)
   const dateStr = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()
@@ -90,7 +90,7 @@ function NoticeCard({ item, theme }: { item: DbNoticeItem; theme: BhavanTheme })
   )
 }
 
-export default function NoticesSection({ notices, theme }: { notices: DbNoticeItem[]; theme: BhavanTheme }) {
+export default function NoticesSection({ notices, theme }: { notices: DbNoticeItem[]; theme: BhawanTheme }) {
   return (
     <section id="notices" className="py-14 sm:py-20 border-b border-border bg-surface/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -111,7 +111,7 @@ export default function NoticesSection({ notices, theme }: { notices: DbNoticeIt
         {notices.length === 0 ? (
           <div className="rounded-2xl border border-border p-12 text-center bg-surface-raised shadow-xs">
             <p className="text-text-muted/50 text-xs font-semibold tracking-wider uppercase" style={{ fontFamily: 'var(--font-sans)' }}>
-              No current notices for this bhavan
+              No current notices for this bhawan
             </p>
           </div>
         ) : (

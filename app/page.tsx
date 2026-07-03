@@ -1,4 +1,4 @@
-import { BhavanCategory } from '@/lib/types'
+import { BhawanCategory } from '@/lib/types'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -6,7 +6,7 @@ import HeroSection from '@/components/home/HeroSection'
 import EventsSection from '@/components/home/EventsSection'
 import ThomsonBand from '@/components/home/ThomsonBand'
 import CampusMapSection from '@/components/home/CampusMapSection'
-import BhavansSection from '@/components/home/BhavansSection'
+import BhawansSection from '@/components/home/BhawansSection'
 import GallerySection from '@/components/home/GallerySection'
 import WardenSection from '@/components/home/WardenSection'
 import DOSWSection from '@/components/home/DOSWSection'
@@ -22,13 +22,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
 //   const supabase = await createClient()
 // const { data, error } = await supabase.from('bhavans').select('*')
-// console.log('BHAVANS TEST:', data, error)
+// console.log('BHAWANS TEST:', data, error)
 
 
   const params = await searchParams
   const activeTab = (['boys', 'girls', 'married', 'coed'].includes(params.tab ?? '')
     ? params.tab
-    : 'boys') as BhavanCategory
+    : 'boys') as BhawanCategory
   const selectedSlug = params.selected
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -91,7 +91,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       const [wardensRes, galleryRes, doswRes] = await Promise.all([
         supabase
           .from('wardens')
-          .select('*, bhavans(name)')
+          .select('*, bhawans(name)')
           .eq('is_active', true)
           .order('display_order'),
         supabase
@@ -123,7 +123,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <EventsSection events={dbEvents} votes={dbVotes} />
         <ThomsonBand />
         <CampusMapSection />
-        <BhavansSection activeTab={activeTab} selectedSlug={selectedSlug} />
+        <BhawansSection activeTab={activeTab} selectedSlug={selectedSlug} />
         <GallerySection images={dbGallery} />
         <WardenSection wardens={dbWardens} />
         <DOSWSection dosw={dbDosw} />
