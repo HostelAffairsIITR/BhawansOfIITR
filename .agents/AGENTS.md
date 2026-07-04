@@ -88,18 +88,18 @@ The portal relies on the following relational structure in Supabase:
 
 ### Image Formats & Fallbacks
 - **Optimized WebP**: All user uploads must convert to `.webp` through the client [compressImage](file:///Users/dhruvkandpal/Documents/BhavansOfIITR/lib/utils/compress-image.ts) helper.
-- **Homepage Bhavan Cover Photos**: Attempt loading cover images at `/images/bhavans/[slug].webp`. Add `imgError` state tracking and revert to a color gradient overlay placeholder if the file is missing from the directory:
+- **Homepage Bhavan Cover Photos**: Attempt loading cover images at `/images/bhawans/[slug].webp`. Add `imgError` state tracking and revert to a color gradient overlay placeholder if the file is missing from the directory:
   ```tsx
   {!imgError ? (
-    <img src={`/images/bhavans/${slug}.webp`} onError={() => setImgError(true)} />
+    <img src={`/images/bhawans/${slug}.webp`} onError={() => setImgError(true)} />
   ) : (
     <div className="bg-gradient-to-br ...">Fallback</div>
   )}
   ```
-- **Amenity Images**: Scoped amenity cards load photos from `/images/bhavans/[slug]/amenities/[id].webp`. Apply state fallbacks here as well to avoid raw broken-image borders.
+- **Amenity Images**: Scoped amenity cards load photos from `/images/bhawans/[slug]/amenities/[id].webp`. Apply state fallbacks here as well to avoid raw broken-image borders.
 
 ### Dynamic Theme System
-- Hostels render custom branding based on color schemes retrieved from [bhavans-data.ts](file:///Users/dhruvkandpal/Documents/BhavansOfIITR/lib/bhavans-data.ts):
+- Hostels render custom branding based on color schemes retrieved from [bhawans-data.ts](file:///Users/dhruvkandpal/Documents/BhavansOfIITR/lib/bhawans-data.ts):
   - `theme.primary`: Main brand color (hex, e.g., `#c2410c` for orange).
   - `theme.primaryLight`: Light backdrop tint.
   - `theme.primaryDark`: Borders and contrast typography.
