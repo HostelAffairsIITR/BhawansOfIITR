@@ -37,6 +37,7 @@ export default function LeafletMap() {
   const [locating, setLocating] = useState(false)
   const [mapFocused, setMapFocused] = useState(false)
   const router = useRouter()
+  const closeTimeoutsRef = useRef<Record<string, any>>({})
 
   // Disable interaction on mobile unless clicked/tapped inside map container
   useEffect(() => {
@@ -139,9 +140,50 @@ export default function LeafletMap() {
         closeButton: false,
         offset: [0, -5],
       })
+
+      // Hover to open popup logic
+      const openPopup = () => {
+        if (closeTimeoutsRef.current[b.slug]) {
+          clearTimeout(closeTimeoutsRef.current[b.slug])
+          delete closeTimeoutsRef.current[b.slug]
+        }
+        marker.openPopup()
+      }
+
+      const closePopup = () => {
+        if (closeTimeoutsRef.current[b.slug]) {
+          clearTimeout(closeTimeoutsRef.current[b.slug])
+        }
+        closeTimeoutsRef.current[b.slug] = setTimeout(() => {
+          marker.closePopup()
+        }, 200)
+      }
+
+      marker.on('mouseover', openPopup)
+      marker.on('mouseout', closePopup)
+
+      // Keep popup open when hovering popup container
+      marker.on('popupopen', () => {
+        const popupElement = marker.getPopup()?.getElement()
+        if (popupElement) {
+          popupElement.addEventListener('mouseenter', () => {
+            if (closeTimeoutsRef.current[b.slug]) {
+              clearTimeout(closeTimeoutsRef.current[b.slug])
+              delete closeTimeoutsRef.current[b.slug]
+            }
+          })
+          popupElement.addEventListener('mouseleave', () => {
+            closePopup()
+          })
+        }
+      })
     })
 
     return () => {
+      // Clear all active timeouts on unmount
+      Object.values(closeTimeoutsRef.current).forEach(timeout => clearTimeout(timeout))
+      closeTimeoutsRef.current = {}
+
       if (mapRef.current) {
         mapRef.current.remove()
         mapRef.current = null
