@@ -111,3 +111,7 @@ desktop.ini
 .project
 .classpath
 .settings/
+
+# Ignore Windows Alternate Data Streams metadata files
+*:Zone.Identifier
+*Zone.Identifier
